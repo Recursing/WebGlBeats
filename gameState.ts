@@ -87,7 +87,8 @@ export class Game {
 
     public tick(dt: number) {
         let t0 = performance.now();
-        for (let i = 0; i < 1; i++) {
+        // Stress testing browsers for fun
+        for (let i = 0; i < Infinity; i++) {
             this.update(dt);
             this.draw();
         }
