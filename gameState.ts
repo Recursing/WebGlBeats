@@ -134,7 +134,7 @@ export class Game {
             translate(modelMatrix, 0, 0, speed * dt);
         }
 
-        if (!played && this.transformations.length > 0 && this.transformations[this.transformations.length - 1][14] > -10.0) {
+        if (!played && this.transformations.length > 0 && this.transformations[this.transformations.length - 1][14] > -20.0) {
             woosh.play();
             if (woosh.readyState != 1)
                 woosh2.play();

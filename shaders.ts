@@ -113,6 +113,7 @@ export class ShaderManager {
     locations: Locations;
     positionBuffer: WebGLBuffer;
     normalsBuffer: WebGLBuffer;
+    triangleNumber = 0;
 
 
     constructor(gl: WebGLRenderingContext) {
@@ -209,6 +210,7 @@ export class ShaderManager {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
             new Uint16Array(indices), gl.STATIC_DRAW);
+        this.triangleNumber = indices.length;
     }
     public setColor(color: [number, number, number, number]) {
         this.gl.uniform4fv(
@@ -228,7 +230,6 @@ export class ShaderManager {
         const gl = this.gl;
         let primitiveType = gl.TRIANGLES;
         let offset = 0;
-        let count = 36;
-        gl.drawElements(primitiveType, count, gl.UNSIGNED_SHORT, offset);
+        gl.drawElements(primitiveType, this.triangleNumber, gl.UNSIGNED_SHORT, offset);
     }
 }
