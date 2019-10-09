@@ -20,7 +20,10 @@ export class GameWindow {
         }
         this.canvasgl = maybeCanvas;
         this.canvasgl.oncontextmenu = () => false;
-        let maybeGl = this.canvasgl.getContext("webgl");
+        let maybeGl = this.canvasgl.getContext("webgl", {
+            antialias: true,
+            depth: true
+        });
         console.log("hey!");
         if (!maybeGl) {
             alert("webgl not foud!");

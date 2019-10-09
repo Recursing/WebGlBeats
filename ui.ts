@@ -2,7 +2,6 @@
 
 import { GameWindow } from './windowManager';
 import { Game } from './gameState';
-import { rotateX } from './geometry';
 
 const gameWindow = new GameWindow();
 
@@ -13,11 +12,15 @@ window.onresize = function () {
 };
 
 
-window.addEventListener('wheel', function (_event) {
-  console.log("hey!");
-  rotateX(gameState.camera.viewMatrix, 0.1);
-  gameState.shaderManager.setCamera(gameState.camera);
-  gameState.draw();
+gameWindow.canvas2d.addEventListener('mousedown', function (event) {
+  console.log("mouseDown");
+  let x = event.pageX - gameWindow.canvas2d.width / 2;
+  let y = event.pageY - gameWindow.canvas2d.height / 2;
+  console.log(y, x);
+  //gameState.addPoint(x / 100, -y / 100, 0.0);
+  gameState.deleteFirstPoint();
 });
+
+
 
 setTimeout(function () { gameState.draw(); }, 1000);
