@@ -1,4 +1,4 @@
-import { Cube, makePerspectiveMatrix, makeTranslationMatrix, mat4, Model, identityMatrix, translate, scale, rotateX, rotateY } from './geometry';
+import { BeveledCube, makePerspectiveMatrix, makeTranslationMatrix, mat4, Model, identityMatrix, translate, multiply, scale, rotateX, rotateY } from './geometry';
 import { GameWindow } from './windowManager';
 import { ShaderManager } from './shaders';
 
@@ -12,7 +12,7 @@ export class Camera {
     viewMatrix: mat4; // Translation + rotation
     constructor(aspectRatio: number) {
         this.perspectiveMatrix = makePerspectiveMatrix(this.fieldOfView, aspectRatio, this.zNear, this.zFar);
-        this.viewMatrix = makeTranslationMatrix(0, 0, -6);
+        this.viewMatrix = makeTranslationMatrix(0, 0, -12);
     }
 
     public setAspectRatio(aspectRatio: number) {
@@ -20,30 +20,12 @@ export class Camera {
     }
 }
 
-export class Solid {
-    model: Model;
-    transformation: mat4;
-    constructor(model: Model, transformation = identityMatrix) {
-        this.model = model;
-        this.transformation = transformation;
-    }
-    translate(x: number, y: number, z: number) {
-        translate(this.transformation, x, y, z);
-    }
-    rotate(x: number, y: number, z = 0) {
-        rotateX(this.transformation, x);
-        rotateY(this.transformation, y);
-        if (z)
-            throw Error("rotate Z not yet implemented")
-    }
-    scale(x: number, y: number, z: number) {
-        scale(this.transformation, x, y, z);
-    }
-}
 
 export class Game {
     camera: Camera;
-    cubes: Cube[];
+    geometry: Model;
+    transformations: mat4[];
+    colors: [number, number, number, number][];
     gameWindow: GameWindow;
     shaderManager: ShaderManager;
     lastUpdate: number | null = null;
@@ -51,12 +33,27 @@ export class Game {
     constructor(gameWindow: GameWindow) {
         const aspectRatio = gameWindow.canvas2d.width / gameWindow.canvas2d.height;
         this.camera = new Camera(aspectRatio);
-        this.cubes = [new Cube(1)];
+        this.geometry = new BeveledCube(1);
+        this.transformations = [identityMatrix];
+        this.colors = [[1, 0, 0, 1]];
+        for (let x = -10; x <= 10; x++) {
+            for (let y = -10; y <= 10; y++) {
+                for (let z = -20; z <= -5.0; z++) {
+                    this.transformations.push(makeTranslationMatrix(x + Math.random() / 40, y + 2 - Math.random() / 40, z));
+                    this.colors.push([Math.random(), Math.random(), Math.random(), 1.0]);
+                }
+            }
+        }
+        console.log(this.transformations.length);
+        for (let t of this.transformations) {
+            scale(t, 0.25, 0.25, 0.25);
+        }
         this.gameWindow = gameWindow;
         this.shaderManager = new ShaderManager(gameWindow.gl);
         this.shaderManager.setCamera(this.camera);
-        this.shaderManager.setVertices(this.cubes[0].getVertices());
-        this.shaderManager.setTriangles(this.cubes[0].getTriangleIndices());
+        this.shaderManager.setVertices(this.geometry.getVertices());
+        this.shaderManager.setNormals(this.geometry.getNormals());
+        this.shaderManager.setTriangles(this.geometry.getTriangleIndices());
         this.shaderManager.setColor([1.0, 0, 0, 1.0]);
         this.draw();
         console.log("hmmm");
@@ -77,22 +74,36 @@ export class Game {
     }
 
     public update(currentMillis: number) {
-        if (this.lastUpdate)
-            rotateX(this.camera.viewMatrix, 0.001 * (currentMillis - this.lastUpdate));
+        let speed = 0.01;
+        if (!this.lastUpdate)
+            this.lastUpdate = currentMillis;
+        let dt = (currentMillis - this.lastUpdate);
+        for (let modelMatrix of this.transformations) {
+            rotateX(modelMatrix, 0.001 * dt);
+            rotateY(modelMatrix, 0.0003 * dt);
+            translate(modelMatrix, 0, 0, speed * dt);
+        }
+        translate(this.camera.viewMatrix, 0, 0, speed / 20 * dt);
         this.shaderManager.setCamera(this.camera);
-        let cubeModel = new Cube((Math.sin(performance.now() / 1000) + 1) / 8);
+        let bpm = 125;
+        let phase = (currentMillis * bpm / 60000) % 1;
+        phase = phase * 2 - 1;
+        let cubeModel = new BeveledCube(Math.exp(-10 * phase * phase) / 4 + 0.05);
         this.shaderManager.setVertices(cubeModel.getVertices());
         this.lastUpdate = currentMillis;
     }
 
     public tick(dt: number) {
-        let t0 = performance.now();
         // Stress testing browsers for fun
-        for (let i = 0; i < Infinity; i++) {
-            this.update(dt);
+        this.update(dt);
+        this.shaderManager.clear();
+        for (let i in this.transformations) {
+            this.shaderManager.setColor(this.colors[i]);
+            let modelViewMatrix = this.camera.viewMatrix.slice() as mat4;
+            multiply(modelViewMatrix, this.transformations[i]);
+            this.shaderManager.setModelViewMatrix(modelViewMatrix);
             this.draw();
         }
-        console.log(performance.now() - t0);
         requestAnimationFrame((dt: number) => { this.tick(dt); });
     }
 }

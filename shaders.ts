@@ -1,13 +1,16 @@
 import { Camera } from './gameState';
+import { mat4, invert, transpose } from './geometry';
 
 const vertexShaderSource = `
 
 // an attribute is an input (in) to a vertex shader.
 // It will receive data from a buffer
 attribute vec4 aVertexPosition;
+attribute vec4 aVertexNormal;
 
 // Uniforms are passed by js
 uniform mat4 uModelViewMatrix;
+uniform mat4 uNormalMatrix;
 uniform mat4 uProjectionMatrix;
 uniform vec4 uVertexColor;
 
@@ -20,7 +23,10 @@ void main() {
   // gl_Position is a special variable a vertex shader
   // is responsible for setting
   gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-  vColor = uVertexColor;
+  highp vec3 directionalVector = normalize(vec3(-0.5, 0.6, 1.0));
+  vec3 v = (uNormalMatrix * aVertexNormal).xyz;
+  highp float directional = max(dot(normalize(v), directionalVector), 0.0) * 0.8;
+  vColor = vec4((directional+0.2) * uVertexColor.xyz, 1.0);
 }
 `;
 
@@ -75,22 +81,28 @@ function createProgram(gl: WebGLRenderingContext, vertexShader: WebGLShader, fra
 class Locations {
     uProjectionMatrix: WebGLUniformLocation;
     uModelViewMatrix: WebGLUniformLocation;
+    uNormalMatrix: WebGLUniformLocation;
     uVertexColor: WebGLUniformLocation;
     aVertexPosition: number;
+    aVertexNormal: number;
 
     tryGetLocation(name: string, program: WebGLProgram, gl: WebGLRenderingContext): number | WebGLUniformLocation {
         console.log("name " + name);
         let maybeLoc = name[0] === 'a' ? gl.getAttribLocation(program, name) : gl.getUniformLocation(program, name);
-        if (maybeLoc !== null)
+        if (maybeLoc !== null) {
+            console.log(maybeLoc);
             return maybeLoc
+        }
         throw Error("Cannot get " + name + " location!");
     }
 
     constructor(program: WebGLProgram, gl: WebGLRenderingContext) {
         this.uProjectionMatrix = this.tryGetLocation("uProjectionMatrix", program, gl);
         this.uModelViewMatrix = this.tryGetLocation("uModelViewMatrix", program, gl);
+        this.uNormalMatrix = this.tryGetLocation("uNormalMatrix", program, gl);
         this.uVertexColor = this.tryGetLocation("uVertexColor", program, gl);
         this.aVertexPosition = this.tryGetLocation("aVertexPosition", program, gl) as number;
+        this.aVertexNormal = this.tryGetLocation("aVertexNormal", program, gl) as number;
     }
 }
 
@@ -100,6 +112,7 @@ export class ShaderManager {
     gl: WebGLRenderingContext;
     locations: Locations;
     positionBuffer: WebGLBuffer;
+    normalsBuffer: WebGLBuffer;
 
 
     constructor(gl: WebGLRenderingContext) {
@@ -118,9 +131,13 @@ export class ShaderManager {
         this.program = maybeProgram;
 
         gl.useProgram(this.program);
+        gl.enable(gl.DEPTH_TEST);           // Enable depth testing
+        gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
 
         this.locations = new Locations(this.program, this.gl);
+
         this.positionBuffer = gl.createBuffer() as WebGLBuffer;
+        this.normalsBuffer = gl.createBuffer() as WebGLBuffer;
     }
 
     public setCamera(camera: Camera) {
@@ -133,6 +150,26 @@ export class ShaderManager {
             this.locations.uModelViewMatrix,
             false,
             camera.viewMatrix);
+        let normalMatrix = [...camera.viewMatrix] as mat4;
+        transpose(invert(normalMatrix));
+        this.gl.uniformMatrix4fv(
+            this.locations.uNormalMatrix,
+            false,
+            normalMatrix);
+    }
+
+
+    public setModelViewMatrix(modelViewMatrix: mat4) {
+        this.gl.uniformMatrix4fv(
+            this.locations.uModelViewMatrix,
+            false,
+            modelViewMatrix);
+        let normalMatrix = [...modelViewMatrix] as mat4;
+        transpose(invert(normalMatrix));
+        this.gl.uniformMatrix4fv(
+            this.locations.uNormalMatrix,
+            false,
+            normalMatrix);
     }
 
     public setVertices(positions: number[]) {
@@ -151,6 +188,21 @@ export class ShaderManager {
         gl.enableVertexAttribArray(vertexPosition);
     }
 
+    public setNormals(normals: number[]) {
+        const gl = this.gl;
+        const normalsBuffer = this.normalsBuffer;
+        gl.bindBuffer(gl.ARRAY_BUFFER, normalsBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+        let numComponents = 3;
+        const type = gl.FLOAT;
+        const normalize = false;
+        const stride = 0;
+        const offset = 0;
+        const normalsPosition = this.locations.aVertexNormal;
+        gl.vertexAttribPointer(normalsPosition, numComponents, type, normalize, stride, offset);
+        gl.enableVertexAttribArray(normalsPosition);
+    }
+
     public setTriangles(indices: number[]) {
         const gl = this.gl;
         const indexBuffer = gl.createBuffer();
@@ -167,11 +219,12 @@ export class ShaderManager {
     public clear() {
         const gl = this.gl;
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-        gl.clearColor(0.0, 0.5, 0.2, 1);
+        gl.clearColor(0.0, 0.1, 0.2, 1);
         gl.clear(gl.COLOR_BUFFER_BIT);
     }
 
     public draw() {
+        // this.clear();
         const gl = this.gl;
         let primitiveType = gl.TRIANGLES;
         let offset = 0;

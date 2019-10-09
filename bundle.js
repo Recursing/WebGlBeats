@@ -10,7 +10,7 @@ var Camera = /** @class */ (function () {
         this.zFar = 100.0;
         this.aspectRatio = 1.0;
         this.perspectiveMatrix = geometry_1.makePerspectiveMatrix(this.fieldOfView, aspectRatio, this.zNear, this.zFar);
-        this.viewMatrix = geometry_1.makeTranslationMatrix(0, 0, -6);
+        this.viewMatrix = geometry_1.makeTranslationMatrix(0, 0, -12);
     }
     Camera.prototype.setAspectRatio = function (aspectRatio) {
         this.perspectiveMatrix = geometry_1.makePerspectiveMatrix(this.fieldOfView, aspectRatio, this.zNear, this.zFar);
@@ -18,39 +18,33 @@ var Camera = /** @class */ (function () {
     return Camera;
 }());
 exports.Camera = Camera;
-var Solid = /** @class */ (function () {
-    function Solid(model, transformation) {
-        if (transformation === void 0) { transformation = geometry_1.identityMatrix; }
-        this.model = model;
-        this.transformation = transformation;
-    }
-    Solid.prototype.translate = function (x, y, z) {
-        geometry_1.translate(this.transformation, x, y, z);
-    };
-    Solid.prototype.rotate = function (x, y, z) {
-        if (z === void 0) { z = 0; }
-        geometry_1.rotateX(this.transformation, x);
-        geometry_1.rotateY(this.transformation, y);
-        if (z)
-            throw Error("rotate Z not yet implemented");
-    };
-    Solid.prototype.scale = function (x, y, z) {
-        geometry_1.scale(this.transformation, x, y, z);
-    };
-    return Solid;
-}());
-exports.Solid = Solid;
 var Game = /** @class */ (function () {
     function Game(gameWindow) {
         this.lastUpdate = null;
         var aspectRatio = gameWindow.canvas2d.width / gameWindow.canvas2d.height;
         this.camera = new Camera(aspectRatio);
-        this.cubes = [new geometry_1.Cube(1)];
+        this.geometry = new geometry_1.BeveledCube(1);
+        this.transformations = [geometry_1.identityMatrix];
+        this.colors = [[1, 0, 0, 1]];
+        for (var x = -10; x <= 10; x++) {
+            for (var y = -10; y <= 10; y++) {
+                for (var z = -20; z <= -5.0; z++) {
+                    this.transformations.push(geometry_1.makeTranslationMatrix(x + Math.random() / 40, y + 2 - Math.random() / 40, z));
+                    this.colors.push([Math.random(), Math.random(), Math.random(), 1.0]);
+                }
+            }
+        }
+        console.log(this.transformations.length);
+        for (var _i = 0, _a = this.transformations; _i < _a.length; _i++) {
+            var t = _a[_i];
+            geometry_1.scale(t, 0.25, 0.25, 0.25);
+        }
         this.gameWindow = gameWindow;
         this.shaderManager = new shaders_1.ShaderManager(gameWindow.gl);
         this.shaderManager.setCamera(this.camera);
-        this.shaderManager.setVertices(this.cubes[0].getVertices());
-        this.shaderManager.setTriangles(this.cubes[0].getTriangleIndices());
+        this.shaderManager.setVertices(this.geometry.getVertices());
+        this.shaderManager.setNormals(this.geometry.getNormals());
+        this.shaderManager.setTriangles(this.geometry.getTriangleIndices());
         this.shaderManager.setColor([1.0, 0, 0, 1.0]);
         this.draw();
         console.log("hmmm");
@@ -68,22 +62,37 @@ var Game = /** @class */ (function () {
         this.shaderManager.draw();
     };
     Game.prototype.update = function (currentMillis) {
-        if (this.lastUpdate)
-            geometry_1.rotateX(this.camera.viewMatrix, 0.001 * (currentMillis - this.lastUpdate));
+        var speed = 0.01;
+        if (!this.lastUpdate)
+            this.lastUpdate = currentMillis;
+        var dt = (currentMillis - this.lastUpdate);
+        for (var _i = 0, _a = this.transformations; _i < _a.length; _i++) {
+            var modelMatrix = _a[_i];
+            geometry_1.rotateX(modelMatrix, 0.001 * dt);
+            geometry_1.rotateY(modelMatrix, 0.0003 * dt);
+            geometry_1.translate(modelMatrix, 0, 0, speed * dt);
+        }
+        geometry_1.translate(this.camera.viewMatrix, 0, 0, speed / 20 * dt);
         this.shaderManager.setCamera(this.camera);
-        var cubeModel = new geometry_1.Cube((Math.sin(performance.now() / 1000) + 1) / 8);
+        var bpm = 125;
+        var phase = (currentMillis * bpm / 60000) % 1;
+        phase = phase * 2 - 1;
+        var cubeModel = new geometry_1.BeveledCube(Math.exp(-10 * phase * phase) / 4 + 0.05);
         this.shaderManager.setVertices(cubeModel.getVertices());
         this.lastUpdate = currentMillis;
     };
     Game.prototype.tick = function (dt) {
         var _this = this;
-        var t0 = performance.now();
         // Stress testing browsers for fun
-        for (var i = 0; i < Infinity; i++) {
-            this.update(dt);
+        this.update(dt);
+        this.shaderManager.clear();
+        for (var i in this.transformations) {
+            this.shaderManager.setColor(this.colors[i]);
+            var modelViewMatrix = this.camera.viewMatrix.slice();
+            geometry_1.multiply(modelViewMatrix, this.transformations[i]);
+            this.shaderManager.setModelViewMatrix(modelViewMatrix);
             this.draw();
         }
-        console.log(performance.now() - t0);
         requestAnimationFrame(function (dt) { _this.tick(dt); });
     };
     return Game;
@@ -97,6 +106,30 @@ exports.identityMatrix = [1, 0, 0, 0,
     0, 1, 0, 0,
     0, 0, 1, 0,
     0, 0, 0, 1];
+/**
+* Transpose the values of a mat4
+*
+* @param {mat4} a the source matrix
+*/
+function transpose(a) {
+    // If we are transposing ourselves we can skip a few steps but have to cache some values
+    var a01 = a[1], a02 = a[2], a03 = a[3];
+    var a12 = a[6], a13 = a[7];
+    var a23 = a[11];
+    a[1] = a[4];
+    a[2] = a[8];
+    a[3] = a[12];
+    a[4] = a01;
+    a[6] = a[9];
+    a[7] = a[13];
+    a[8] = a02;
+    a[9] = a12;
+    a[11] = a[14];
+    a[12] = a03;
+    a[13] = a13;
+    a[14] = a23;
+}
+exports.transpose = transpose;
 // Efficient matrix math function from https://github.com/toji/gl-matrix/blob/master/src/mat4.js
 /**
  * Multiplies two mat4s
@@ -317,12 +350,12 @@ function rotateY(m, rad) {
     m[11] = a03 * sin + a23 * cos;
 }
 exports.rotateY = rotateY;
-var Cube = /** @class */ (function () {
-    function Cube(bevel) {
+var BeveledCube = /** @class */ (function () {
+    function BeveledCube(bevel) {
         if (bevel === void 0) { bevel = 0; }
         this.bevel = bevel;
     }
-    Cube.prototype.getVertices = function () {
+    BeveledCube.prototype.getVertices = function () {
         var e = this.bevel;
         var vertices = [
             // Front face
@@ -358,7 +391,42 @@ var Cube = /** @class */ (function () {
         ];
         return vertices;
     };
-    Cube.prototype.getTriangleIndices = function () {
+    BeveledCube.prototype.getNormals = function () {
+        var normals = [
+            // Front face
+            0, 0, 1.0,
+            0, 0, 1.0,
+            0, 0, 1.0,
+            0, 0, 1.0,
+            // Back face
+            0, 0, -1.0,
+            0, 0, -1.0,
+            0, 0, -1.0,
+            0, 0, -1.0,
+            // Top face
+            0, 1.0, 0,
+            0, 1.0, 0,
+            0, 1.0, 0,
+            0, 1.0, 0,
+            // Bottom face
+            0, -1.0, 0,
+            0, -1.0, 0,
+            0, -1.0, 0,
+            0, -1.0, 0,
+            // Right face
+            1.0, 0, 0,
+            1.0, 0, 0,
+            1.0, 0, 0,
+            1.0, 0, 0,
+            // Left face
+            -1.0, 0, 0,
+            -1.0, 0, 0,
+            -1.0, 0, 0,
+            -1.0, 0, 0,
+        ];
+        return normals;
+    };
+    BeveledCube.prototype.getTriangleIndices = function () {
         // Indices related to getVertices, face triangles
         var indices = [
             4, 5, 6, 4, 6, 7,
@@ -370,14 +438,22 @@ var Cube = /** @class */ (function () {
         ];
         return indices;
     };
-    return Cube;
+    return BeveledCube;
 }());
-exports.Cube = Cube;
+exports.BeveledCube = BeveledCube;
 
 },{}],3:[function(require,module,exports){
 "use strict";
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
 exports.__esModule = true;
-var vertexShaderSource = "\n\n// an attribute is an input (in) to a vertex shader.\n// It will receive data from a buffer\nattribute vec4 aVertexPosition;\n\n// Uniforms are passed by js\nuniform mat4 uModelViewMatrix;\nuniform mat4 uProjectionMatrix;\nuniform vec4 uVertexColor;\n\n// varying will go to fragmentShader\nvarying lowp vec4 vColor;\n\n// all shaders have a main function\nvoid main() {\n\n  // gl_Position is a special variable a vertex shader\n  // is responsible for setting\n  gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;\n  vColor = uVertexColor;\n}\n";
+var geometry_1 = require("./geometry");
+var vertexShaderSource = "\n\n// an attribute is an input (in) to a vertex shader.\n// It will receive data from a buffer\nattribute vec4 aVertexPosition;\nattribute vec4 aVertexNormal;\n\n// Uniforms are passed by js\nuniform mat4 uModelViewMatrix;\nuniform mat4 uNormalMatrix;\nuniform mat4 uProjectionMatrix;\nuniform vec4 uVertexColor;\n\n// varying will go to fragmentShader\nvarying lowp vec4 vColor;\n\n// all shaders have a main function\nvoid main() {\n\n  // gl_Position is a special variable a vertex shader\n  // is responsible for setting\n  gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;\n  highp vec3 directionalVector = normalize(vec3(-0.5, 0.6, 1.0));\n  vec3 v = (uNormalMatrix * aVertexNormal).xyz;\n  highp float directional = max(dot(normalize(v), directionalVector), 0.0) * 0.8;\n  vColor = vec4((directional+0.2) * uVertexColor.xyz, 1.0);\n}\n";
 var fragmentShaderSource = "\n\n// fragment shaders don't have a default precision so we need\n// to pick one. \"only using highp in both vertex and fragment shaders is safer\"\nprecision highp float;\n\n// varying are passed from the vertex shader\nvarying lowp vec4 vColor;\nvoid main(void) {\n  gl_FragColor = vColor;\n}\n";
 // Compile vertex or fragment shader
 function createShader(gl, type, source) {
@@ -416,14 +492,18 @@ var Locations = /** @class */ (function () {
     function Locations(program, gl) {
         this.uProjectionMatrix = this.tryGetLocation("uProjectionMatrix", program, gl);
         this.uModelViewMatrix = this.tryGetLocation("uModelViewMatrix", program, gl);
+        this.uNormalMatrix = this.tryGetLocation("uNormalMatrix", program, gl);
         this.uVertexColor = this.tryGetLocation("uVertexColor", program, gl);
         this.aVertexPosition = this.tryGetLocation("aVertexPosition", program, gl);
+        this.aVertexNormal = this.tryGetLocation("aVertexNormal", program, gl);
     }
     Locations.prototype.tryGetLocation = function (name, program, gl) {
         console.log("name " + name);
         var maybeLoc = name[0] === 'a' ? gl.getAttribLocation(program, name) : gl.getUniformLocation(program, name);
-        if (maybeLoc !== null)
+        if (maybeLoc !== null) {
+            console.log(maybeLoc);
             return maybeLoc;
+        }
         throw Error("Cannot get " + name + " location!");
     };
     return Locations;
@@ -444,13 +524,25 @@ var ShaderManager = /** @class */ (function () {
         }
         this.program = maybeProgram;
         gl.useProgram(this.program);
+        gl.enable(gl.DEPTH_TEST); // Enable depth testing
+        gl.depthFunc(gl.LEQUAL); // Near things obscure far things
         this.locations = new Locations(this.program, this.gl);
         this.positionBuffer = gl.createBuffer();
+        this.normalsBuffer = gl.createBuffer();
     }
     ShaderManager.prototype.setCamera = function (camera) {
         // Set the shader uniforms
         this.gl.uniformMatrix4fv(this.locations.uProjectionMatrix, false, camera.perspectiveMatrix);
         this.gl.uniformMatrix4fv(this.locations.uModelViewMatrix, false, camera.viewMatrix);
+        var normalMatrix = __spreadArrays(camera.viewMatrix);
+        geometry_1.transpose(geometry_1.invert(normalMatrix));
+        this.gl.uniformMatrix4fv(this.locations.uNormalMatrix, false, normalMatrix);
+    };
+    ShaderManager.prototype.setModelViewMatrix = function (modelViewMatrix) {
+        this.gl.uniformMatrix4fv(this.locations.uModelViewMatrix, false, modelViewMatrix);
+        var normalMatrix = __spreadArrays(modelViewMatrix);
+        geometry_1.transpose(geometry_1.invert(normalMatrix));
+        this.gl.uniformMatrix4fv(this.locations.uNormalMatrix, false, normalMatrix);
     };
     ShaderManager.prototype.setVertices = function (positions) {
         // Create a buffer for the cube's vertex positions.
@@ -467,6 +559,20 @@ var ShaderManager = /** @class */ (function () {
         gl.vertexAttribPointer(vertexPosition, numComponents, type, normalize, stride, offset);
         gl.enableVertexAttribArray(vertexPosition);
     };
+    ShaderManager.prototype.setNormals = function (normals) {
+        var gl = this.gl;
+        var normalsBuffer = this.normalsBuffer;
+        gl.bindBuffer(gl.ARRAY_BUFFER, normalsBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+        var numComponents = 3;
+        var type = gl.FLOAT;
+        var normalize = false;
+        var stride = 0;
+        var offset = 0;
+        var normalsPosition = this.locations.aVertexNormal;
+        gl.vertexAttribPointer(normalsPosition, numComponents, type, normalize, stride, offset);
+        gl.enableVertexAttribArray(normalsPosition);
+    };
     ShaderManager.prototype.setTriangles = function (indices) {
         var gl = this.gl;
         var indexBuffer = gl.createBuffer();
@@ -479,10 +585,11 @@ var ShaderManager = /** @class */ (function () {
     ShaderManager.prototype.clear = function () {
         var gl = this.gl;
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-        gl.clearColor(0.0, 0.5, 0.2, 1);
+        gl.clearColor(0.0, 0.1, 0.2, 1);
         gl.clear(gl.COLOR_BUFFER_BIT);
     };
     ShaderManager.prototype.draw = function () {
+        // this.clear();
         var gl = this.gl;
         var primitiveType = gl.TRIANGLES;
         var offset = 0;
@@ -493,7 +600,7 @@ var ShaderManager = /** @class */ (function () {
 }());
 exports.ShaderManager = ShaderManager;
 
-},{}],4:[function(require,module,exports){
+},{"./geometry":2}],4:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var windowManager_1 = require("./windowManager");

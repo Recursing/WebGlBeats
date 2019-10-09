@@ -1,20 +1,19 @@
-export type mat4 = [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number];
-
-export let identityMatrix: mat4 = [1, 0, 0, 0,
+"use strict";
+exports.__esModule = true;
+exports.identityMatrix = [1, 0, 0, 0,
     0, 1, 0, 0,
     0, 0, 1, 0,
     0, 0, 0, 1];
-
 /**
 * Transpose the values of a mat4
 *
 * @param {mat4} a the source matrix
 */
-export function transpose(a: mat4) {
+function transpose(a) {
     // If we are transposing ourselves we can skip a few steps but have to cache some values
-    let a01 = a[1], a02 = a[2], a03 = a[3];
-    let a12 = a[6], a13 = a[7];
-    let a23 = a[11];
+    var a01 = a[1], a02 = a[2], a03 = a[3];
+    var a12 = a[6], a13 = a[7];
+    var a23 = a[11];
     a[1] = a[4];
     a[2] = a[8];
     a[3] = a[12];
@@ -28,10 +27,8 @@ export function transpose(a: mat4) {
     a[13] = a13;
     a[14] = a23;
 }
-
-
+exports.transpose = transpose;
 // Efficient matrix math function from https://github.com/toji/gl-matrix/blob/master/src/mat4.js
-
 /**
  * Multiplies two mat4s
  *
@@ -40,40 +37,45 @@ export function transpose(a: mat4) {
  * @param {mat4} b the second operand
  * @returns {mat4} out
  */
-export function multiply(a: mat4, b: mat4): mat4 {
-    let a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3];
-    let a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
-    let a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
-    let a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
-    let out = a;
-
+function multiply(a, b) {
+    var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3];
+    var a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
+    var a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
+    var a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
+    var out = a;
     // Cache only the current line of the second matrix
-    let b0 = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
+    var b0 = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
     out[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
     out[1] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
     out[2] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
     out[3] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
-
-    b0 = b[4]; b1 = b[5]; b2 = b[6]; b3 = b[7];
+    b0 = b[4];
+    b1 = b[5];
+    b2 = b[6];
+    b3 = b[7];
     out[4] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
     out[5] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
     out[6] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
     out[7] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
-
-    b0 = b[8]; b1 = b[9]; b2 = b[10]; b3 = b[11];
+    b0 = b[8];
+    b1 = b[9];
+    b2 = b[10];
+    b3 = b[11];
     out[8] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
     out[9] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
     out[10] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
     out[11] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
-
-    b0 = b[12]; b1 = b[13]; b2 = b[14]; b3 = b[15];
+    b0 = b[12];
+    b1 = b[13];
+    b2 = b[14];
+    b3 = b[15];
     out[12] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
     out[13] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
     out[14] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
     out[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
     return out;
 }
-
+exports.multiply = multiply;
 /**
  * Inverts a mat4
  *
@@ -81,34 +83,30 @@ export function multiply(a: mat4, b: mat4): mat4 {
  * @param {mat4} a the source matrix
  * @returns {mat4} out
  */
-export function invert(a: mat4): mat4 {
-    let a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3];
-    let a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
-    let a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
-    let a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
-
-    let b00 = a00 * a11 - a01 * a10;
-    let b01 = a00 * a12 - a02 * a10;
-    let b02 = a00 * a13 - a03 * a10;
-    let b03 = a01 * a12 - a02 * a11;
-    let b04 = a01 * a13 - a03 * a11;
-    let b05 = a02 * a13 - a03 * a12;
-    let b06 = a20 * a31 - a21 * a30;
-    let b07 = a20 * a32 - a22 * a30;
-    let b08 = a20 * a33 - a23 * a30;
-    let b09 = a21 * a32 - a22 * a31;
-    let b10 = a21 * a33 - a23 * a31;
-    let b11 = a22 * a33 - a23 * a32;
-
+function invert(a) {
+    var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3];
+    var a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
+    var a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
+    var a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
+    var b00 = a00 * a11 - a01 * a10;
+    var b01 = a00 * a12 - a02 * a10;
+    var b02 = a00 * a13 - a03 * a10;
+    var b03 = a01 * a12 - a02 * a11;
+    var b04 = a01 * a13 - a03 * a11;
+    var b05 = a02 * a13 - a03 * a12;
+    var b06 = a20 * a31 - a21 * a30;
+    var b07 = a20 * a32 - a22 * a30;
+    var b08 = a20 * a33 - a23 * a30;
+    var b09 = a21 * a32 - a22 * a31;
+    var b10 = a21 * a33 - a23 * a31;
+    var b11 = a22 * a33 - a23 * a32;
     // Calculate the determinant
-    let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
-
+    var det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
     if (!det) {
         throw new Error("Cannot invert singular matrix!");
     }
-
     det = 1.0 / det;
-    let out = a;
+    var out = a;
     out[0] = (a11 * b11 - a12 * b10 + a13 * b09) * det;
     out[1] = (a02 * b10 - a01 * b11 - a03 * b09) * det;
     out[2] = (a31 * b05 - a32 * b04 + a33 * b03) * det;
@@ -125,10 +123,9 @@ export function invert(a: mat4): mat4 {
     out[13] = (a00 * b09 - a01 * b07 + a02 * b06) * det;
     out[14] = (a31 * b01 - a30 * b03 - a32 * b00) * det;
     out[15] = (a20 * b03 - a21 * b01 + a22 * b00) * det;
-
     return out;
 }
-
+exports.invert = invert;
 /**
 * [TODO] understand
  * see https://www.songho.ca/opengl/gl_projectionmatrix.html
@@ -144,9 +141,9 @@ export function invert(a: mat4): mat4 {
  * @param {number} far Far bound of the frustum, can be null or Infinity
  * @returns {mat4} out
  */
-export function makePerspectiveMatrix(fovy: number, aspect: number, near: number, far: number): mat4 {
-    let out: mat4 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-    const f = 1.0 / Math.tan(fovy / 2);
+function makePerspectiveMatrix(fovy, aspect, near, far) {
+    var out = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    var f = 1.0 / Math.tan(fovy / 2);
     out[0] = f / aspect;
     out[1] = 0;
     out[2] = 0;
@@ -162,17 +159,18 @@ export function makePerspectiveMatrix(fovy: number, aspect: number, near: number
     out[13] = 0;
     out[15] = 0;
     if (far != null && far !== Infinity) {
-        const nf = 1 / (near - far);
+        var nf = 1 / (near - far);
         out[10] = (far + near) * nf;
         out[14] = (2 * far * near) * nf;
-    } else {
+    }
+    else {
         out[10] = -1;
         out[14] = -2 * near;
     }
     return out;
 }
-
-export function makeTranslationMatrix(x: number, y: number, z: number): mat4 {
+exports.makePerspectiveMatrix = makePerspectiveMatrix;
+function makeTranslationMatrix(x, y, z) {
     // Row major form
     return [
         1, 0, 0, 0,
@@ -181,17 +179,17 @@ export function makeTranslationMatrix(x: number, y: number, z: number): mat4 {
         x, y, z, 1
     ];
 }
-
+exports.makeTranslationMatrix = makeTranslationMatrix;
 // [TODO] see wikipedia
 // https://github.com/toji/gl-matrix/blob/master/src/mat4.js
-export function translate(m: mat4, x: number, y: number, z: number) {
+function translate(m, x, y, z) {
     m[12] = m[0] * x + m[4] * y + m[8] * z + m[12];
     m[13] = m[1] * x + m[5] * y + m[9] * z + m[13];
     m[14] = m[2] * x + m[6] * y + m[10] * z + m[14];
     m[15] = m[3] * x + m[7] * y + m[11] * z + m[15];
 }
-
-export function scale(m: mat4, x: number, y: number, z: number) {
+exports.translate = translate;
+function scale(m, x, y, z) {
     m[0] *= x;
     m[1] *= x;
     m[2] *= x;
@@ -205,19 +203,18 @@ export function scale(m: mat4, x: number, y: number, z: number) {
     m[10] *= z;
     m[11] *= z;
 }
-
-
-export function rotateX(m: mat4, rad: number) {
-    let sin = Math.sin(rad);
-    let cos = Math.cos(rad);
-    let a10 = m[4];
-    let a11 = m[5];
-    let a12 = m[6];
-    let a13 = m[7];
-    let a20 = m[8];
-    let a21 = m[9];
-    let a22 = m[10];
-    let a23 = m[11];
+exports.scale = scale;
+function rotateX(m, rad) {
+    var sin = Math.sin(rad);
+    var cos = Math.cos(rad);
+    var a10 = m[4];
+    var a11 = m[5];
+    var a12 = m[6];
+    var a13 = m[7];
+    var a20 = m[8];
+    var a21 = m[9];
+    var a22 = m[10];
+    var a23 = m[11];
     m[4] = a10 * cos + a20 * sin;
     m[5] = a11 * cos + a21 * sin;
     m[6] = a12 * cos + a22 * sin;
@@ -227,20 +224,20 @@ export function rotateX(m: mat4, rad: number) {
     m[10] = a22 * cos - a12 * sin;
     m[11] = a23 * cos - a13 * sin;
 }
-
+exports.rotateX = rotateX;
 // [TODO] see wikipedia
 // https://github.com/toji/gl-matrix/blob/master/src/mat4.js
-export function rotateY(m: mat4, rad: number) {
-    let sin = Math.sin(rad);
-    let cos = Math.cos(rad);
-    let a00 = m[0];
-    let a01 = m[1];
-    let a02 = m[2];
-    let a03 = m[3];
-    let a20 = m[8];
-    let a21 = m[9];
-    let a22 = m[10];
-    let a23 = m[11];
+function rotateY(m, rad) {
+    var sin = Math.sin(rad);
+    var cos = Math.cos(rad);
+    var a00 = m[0];
+    var a01 = m[1];
+    var a02 = m[2];
+    var a03 = m[3];
+    var a20 = m[8];
+    var a21 = m[9];
+    var a22 = m[10];
+    var a23 = m[11];
     m[0] = a00 * cos - a20 * sin;
     m[1] = a01 * cos - a21 * sin;
     m[2] = a02 * cos - a22 * sin;
@@ -250,119 +247,95 @@ export function rotateY(m: mat4, rad: number) {
     m[10] = a02 * sin + a22 * cos;
     m[11] = a03 * sin + a23 * cos;
 }
-
-export interface Model {
-    getVertices: () => number[];
-    getTriangleIndices: () => number[];
-    getNormals: () => number[];
-}
-
-export class BeveledCube {
-
-    bevel: number;
-
-    constructor(bevel = 0) {
+exports.rotateY = rotateY;
+var BeveledCube = /** @class */ (function () {
+    function BeveledCube(bevel) {
+        if (bevel === void 0) { bevel = 0; }
         this.bevel = bevel;
     }
-
-    public getVertices(): number[] {
-        let e = this.bevel;
-        let vertices = [
+    BeveledCube.prototype.getVertices = function () {
+        var e = this.bevel;
+        var vertices = [
             // Front face
-            -1.0, -1.0, 1.0 + e, // 0
+            -1.0, -1.0, 1.0 + e,
             1.0, -1.0, 1.0 + e,
             1.0, 1.0, 1.0 + e,
             -1.0, 1.0, 1.0 + e,
-
             // Back face
-            -1.0, -1.0, -1.0 - e, // 4
+            -1.0, -1.0, -1.0 - e,
             -1.0, 1.0, -1.0 - e,
             1.0, 1.0, -1.0 - e,
             1.0, -1.0, -1.0 - e,
-
             // Top face
-            -1.0, 1.0 + e, -1.0, // 8
+            -1.0, 1.0 + e, -1.0,
             -1.0, 1.0 + e, 1.0,
             1.0, 1.0 + e, 1.0,
             1.0, 1.0 + e, -1.0,
-
             // Bottom face
-            -1.0, -1.0 - e, -1.0, // 12
+            -1.0, -1.0 - e, -1.0,
             1.0, -1.0 - e, -1.0,
             1.0, -1.0 - e, 1.0,
             -1.0, -1.0 - e, 1.0,
-
             // Right face
-            1.0 + e, -1.0, -1.0, // 16
+            1.0 + e, -1.0, -1.0,
             1.0 + e, 1.0, -1.0,
             1.0 + e, 1.0, 1.0,
             1.0 + e, -1.0, 1.0,
-
             // Left face
-            -1.0 - e, -1.0, -1.0, // 20
+            -1.0 - e, -1.0, -1.0,
             -1.0 - e, -1.0, 1.0,
             -1.0 - e, 1.0, 1.0,
             -1.0 - e, 1.0, -1.0,
-
         ];
         return vertices;
-    }
-
-    public getNormals(): number[] {
-        let normals = [
+    };
+    BeveledCube.prototype.getNormals = function () {
+        var normals = [
             // Front face
             0, 0, 1.0,
             0, 0, 1.0,
             0, 0, 1.0,
             0, 0, 1.0,
-
             // Back face
             0, 0, -1.0,
             0, 0, -1.0,
             0, 0, -1.0,
             0, 0, -1.0,
-
-
             // Top face
-            0, 1.0, 0, // 8
             0, 1.0, 0,
             0, 1.0, 0,
             0, 1.0, 0,
-
+            0, 1.0, 0,
             // Bottom face
-            0, -1.0, 0, // 12
             0, -1.0, 0,
             0, -1.0, 0,
             0, -1.0, 0,
-
+            0, -1.0, 0,
             // Right face
-            1.0, 0, 0, // 16
             1.0, 0, 0,
             1.0, 0, 0,
             1.0, 0, 0,
-
+            1.0, 0, 0,
             // Left face
-            -1.0, 0, 0, // 20
             -1.0, 0, 0,
             -1.0, 0, 0,
             -1.0, 0, 0,
-
+            -1.0, 0, 0,
         ];
         return normals;
-    }
-
-    public getTriangleIndices(): number[] {
-
+    };
+    BeveledCube.prototype.getTriangleIndices = function () {
         // Indices related to getVertices, face triangles
-        const indices = [
-            4, 5, 6, 4, 6, 7,    // back
-            8, 9, 10, 8, 10, 11,   // top
-            12, 13, 14, 12, 14, 15,   // bottom
-            0, 1, 2, 0, 2, 3,    // front
-            16, 17, 18, 16, 18, 19,   // right
-            20, 21, 22, 20, 22, 23,   // left
+        var indices = [
+            4, 5, 6, 4, 6, 7,
+            8, 9, 10, 8, 10, 11,
+            12, 13, 14, 12, 14, 15,
+            0, 1, 2, 0, 2, 3,
+            16, 17, 18, 16, 18, 19,
+            20, 21, 22, 20, 22, 23,
         ];
-
         return indices;
-    }
-}
+    };
+    return BeveledCube;
+}());
+exports.BeveledCube = BeveledCube;
