@@ -1,0 +1,14 @@
+body {
+  margin: 0;
+}
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#overlay {
+  position: fixed;
+  top: 25px;
+  left: 25px;
+}
