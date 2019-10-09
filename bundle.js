@@ -78,7 +78,8 @@ var Game = /** @class */ (function () {
     Game.prototype.tick = function (dt) {
         var _this = this;
         var t0 = performance.now();
-        for (var i = 0; i < 1; i++) {
+        // Stress testing browsers for fun
+        for (var i = 0; i < Infinity; i++) {
             this.update(dt);
             this.draw();
         }
