@@ -4,7 +4,7 @@ import { ShaderManager } from './shaders';
 
 
 export class Camera {
-    fieldOfView = 45 * Math.PI / 180;
+    fieldOfView = 40 * Math.PI / 180;
     zNear = 1.0;
     zFar = 1000.0;
     aspectRatio = 1.0;
@@ -137,10 +137,11 @@ export class Game {
         }
 
         if (!played && this.transformations.length > 0 && this.transformations[this.transformations.length - 1][14] > -20.0) {
-            woosh.play();
-            if (woosh.readyState != 1)
+            if (woosh.paused)
+                woosh.play();
+            else if (woosh2.paused)
                 woosh2.play();
-            if (woosh2.readyState != 1)
+            else if (woosh3.paused)
                 woosh3.play();
             played = true;
         }

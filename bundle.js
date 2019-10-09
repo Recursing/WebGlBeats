@@ -5,7 +5,7 @@ var geometry_1 = require("./geometry");
 var shaders_1 = require("./shaders");
 var Camera = /** @class */ (function () {
     function Camera(aspectRatio) {
-        this.fieldOfView = 45 * Math.PI / 180;
+        this.fieldOfView = 40 * Math.PI / 180;
         this.zNear = 1.0;
         this.zFar = 1000.0;
         this.aspectRatio = 1.0;
@@ -125,10 +125,11 @@ var Game = /** @class */ (function () {
             geometry_1.translate(modelMatrix, 0, 0, speed * dt);
         }
         if (!played && this.transformations.length > 0 && this.transformations[this.transformations.length - 1][14] > -20.0) {
-            woosh.play();
-            if (woosh.readyState != 1)
+            if (woosh.paused)
+                woosh.play();
+            else if (woosh2.paused)
                 woosh2.play();
-            if (woosh2.readyState != 1)
+            else if (woosh3.paused)
                 woosh3.play();
             played = true;
         }
