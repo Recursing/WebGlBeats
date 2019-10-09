@@ -86,6 +86,8 @@ var Game = /** @class */ (function () {
     }
     Game.prototype.addPoint = function (x, y, z) {
         var t = geometry_1.identityMatrix.slice();
+        if (Math.abs(x) < 2 && Math.abs(y) < 2)
+            x *= 2 / Math.abs(x);
         geometry_1.translate(t, x, y, z);
         this.transformations.push(t);
         var rgb = HuetoRGB(Math.random());

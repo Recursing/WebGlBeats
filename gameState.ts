@@ -94,6 +94,8 @@ export class Game {
 
     public addPoint(x: number, y: number, z: number) {
         let t = identityMatrix.slice() as mat4;
+        if (Math.abs(x) < 2 && Math.abs(y) < 2)
+            x *= 2 / Math.abs(x);
         translate(t, x, y, z);
         this.transformations.push(t);
         let rgb = HuetoRGB(Math.random());
