@@ -1,9 +1,19 @@
 export type mat4 = [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number];
 
-export let identityMatrix: mat4 = [1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, 0,
-    0, 0, 0, 1];
+export function identityMatrix(): mat4 {
+    return [1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1];
+}
+
+export function interpolate(m1: mat4, m2: mat4, t: number): mat4 {
+    let m0 = identityMatrix();
+    for (let i = 0; i < 15; i++) {
+        m0[i] = (m1[i] * t + m2[i] * (1 - t));
+    }
+    return m0;
+}
 
 /**
 * Transpose the values of a mat4
@@ -249,6 +259,31 @@ export function rotateY(m: mat4, rad: number) {
     m[9] = a01 * sin + a21 * cos;
     m[10] = a02 * sin + a22 * cos;
     m[11] = a03 * sin + a23 * cos;
+}
+
+/**
+ * Rotates a matrix by the given angle around the Z axis
+ */
+export function rotateZ(m: mat4, rad: number) {
+    let s = Math.sin(rad);
+    let c = Math.cos(rad);
+    let a00 = m[0];
+    let a01 = m[1];
+    let a02 = m[2];
+    let a03 = m[3];
+    let a10 = m[4];
+    let a11 = m[5];
+    let a12 = m[6];
+    let a13 = m[7];
+    // Perform axis-specific matrix multiplication
+    m[0] = a00 * c + a10 * s;
+    m[1] = a01 * c + a11 * s;
+    m[2] = a02 * c + a12 * s;
+    m[3] = a03 * c + a13 * s;
+    m[4] = a10 * c - a00 * s;
+    m[5] = a11 * c - a01 * s;
+    m[6] = a12 * c - a02 * s;
+    m[7] = a13 * c - a03 * s;
 }
 
 export interface Model {

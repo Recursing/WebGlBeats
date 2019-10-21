@@ -10,7 +10,7 @@ var Camera = /** @class */ (function () {
         this.zFar = 1000.0;
         this.aspectRatio = 1.0;
         this.perspectiveMatrix = geometry_1.makePerspectiveMatrix(this.fieldOfView, aspectRatio, this.zNear, this.zFar);
-        this.viewMatrix = geometry_1.makeTranslationMatrix(0, 0, -12);
+        this.viewMatrix = geometry_1.makeTranslationMatrix(0, -3, -12);
     }
     Camera.prototype.setAspectRatio = function (aspectRatio) {
         this.perspectiveMatrix = geometry_1.makePerspectiveMatrix(this.fieldOfView, aspectRatio, this.zNear, this.zFar);
@@ -62,7 +62,7 @@ var Game = /** @class */ (function () {
             var point = points_1[_i];
             this.addPoint(point[1], point[2], -point[0] * speed / 2);
         }
-        this.transformations.push(geometry_1.identityMatrix.slice());
+        this.cursorProjection = [geometry_1.identityMatrix()];
         this.colors.push([1, 0, 0, 1]);
         /*for (let x = -12; x <= 10; x += 3) {
             for (let y = -12; y <= 10; y += 3) {
@@ -85,16 +85,40 @@ var Game = /** @class */ (function () {
         this.tick(0);
     }
     Game.prototype.addPoint = function (x, y, z) {
-        var t = geometry_1.identityMatrix.slice();
+        var t = geometry_1.identityMatrix();
         if (Math.abs(x) < 2 && Math.abs(y) < 2)
             x *= 2 / Math.abs(x);
         geometry_1.translate(t, x, y, z);
         this.transformations.push(t);
         var rgb = HuetoRGB(Math.random());
         this.colors.push([rgb[0], rgb[1], rgb[2], 1.0]);
-        var ti = Math.round(performance.now());
+        // let ti = Math.round(performance.now());
         // points.push([ti, x, y]);
         // console.log(JSON.stringify(points));
+    };
+    Game.prototype.moveCursor = function (x, y) {
+        var newCursor = geometry_1.identityMatrix();
+        geometry_1.rotateX(newCursor, 0.1);
+        geometry_1.rotateY(newCursor, 0.1);
+        geometry_1.translate(newCursor, x / 100, -y / 100 + 4, -10);
+        this.cursorProjection.push(newCursor);
+        while (this.cursorProjection.length > 100) {
+            this.cursorProjection.shift();
+        }
+    };
+    Game.prototype.rotateController = function (x, y, z) {
+        var newCursor = geometry_1.identityMatrix();
+        geometry_1.translate(newCursor, 0, 2, -10);
+        // console.log("x y z: ", Math.floor(x), Math.floor(y), Math.floor(z));
+        geometry_1.rotateY(newCursor, y);
+        geometry_1.rotateZ(newCursor, z);
+        geometry_1.rotateX(newCursor, -x);
+        geometry_1.translate(newCursor, -10, 0, 0);
+        geometry_1.scale(newCursor, 2, 0.5, 0.1);
+        this.cursorProjection.push(newCursor);
+        while (this.cursorProjection.length > 100) {
+            this.cursorProjection.shift();
+        }
     };
     Game.prototype.deleteFirstPoint = function () {
         if (this.transformations.length == 0)
@@ -114,7 +138,35 @@ var Game = /** @class */ (function () {
     };
     Game.prototype.draw = function () {
         // TODO
-        this.shaderManager.draw();
+        this.shaderManager.clear();
+        for (var i in this.transformations) {
+            this.shaderManager.setColor(this.colors[i]);
+            var modelViewMatrix = this.camera.viewMatrix.slice();
+            geometry_1.multiply(modelViewMatrix, this.transformations[i]);
+            this.shaderManager.setModelViewMatrix(modelViewMatrix);
+            this.shaderManager.draw();
+        }
+        for (var i = this.cursorProjection.length - 1; i > 0; i--) {
+            for (var interp_number = 0; interp_number < 5; interp_number++) {
+                var interpolatedMatrix = this.camera.viewMatrix.slice();
+                var interp_factor = interp_number / 5;
+                geometry_1.multiply(interpolatedMatrix, geometry_1.interpolate(this.cursorProjection[i], this.cursorProjection[i - 1], interp_factor));
+                var scale_factor = 1 - (this.cursorProjection.length - i - interp_factor) / 30;
+                scale_factor *= scale_factor * scale_factor * scale_factor;
+                console.log(scale_factor);
+                if (scale_factor < 0.1) {
+                    i = 0;
+                    break;
+                }
+                geometry_1.scale(interpolatedMatrix, scale_factor, scale_factor, scale_factor);
+                var r = 0.05 + scale_factor * 0.35;
+                var g = r;
+                var b = 0.1 + scale_factor * 0.9;
+                this.shaderManager.setColor([r, g, b, 1]);
+                this.shaderManager.setModelViewMatrix(interpolatedMatrix);
+                this.shaderManager.draw();
+            }
+        }
     };
     Game.prototype.update = function (currentMillis) {
         if (!this.lastUpdate)
@@ -142,7 +194,7 @@ var Game = /** @class */ (function () {
         var bpm = 125;
         var phase = (currentMillis * bpm / 60000) % 1;
         phase = phase * 2 - 1;
-        var cubeModel = new geometry_1.BeveledCube(Math.exp(-10 * phase * phase) / 4 + 0.05);
+        var cubeModel = new geometry_1.BeveledCube(Math.exp(-10 * phase * phase) / 3 + 0.1);
         this.shaderManager.setVertices(cubeModel.getVertices());
         this.lastUpdate = currentMillis;
     };
@@ -150,14 +202,7 @@ var Game = /** @class */ (function () {
         var _this = this;
         // Stress testing browsers for fun
         this.update(dt);
-        this.shaderManager.clear();
-        for (var i in this.transformations) {
-            this.shaderManager.setColor(this.colors[i]);
-            var modelViewMatrix = this.camera.viewMatrix.slice();
-            geometry_1.multiply(modelViewMatrix, this.transformations[i]);
-            this.shaderManager.setModelViewMatrix(modelViewMatrix);
-            this.draw();
-        }
+        this.draw();
         requestAnimationFrame(function (dt) { _this.tick(dt); });
     };
     return Game;
@@ -167,10 +212,21 @@ exports.Game = Game;
 },{"./geometry":2,"./shaders":3}],2:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
-exports.identityMatrix = [1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, 0,
-    0, 0, 0, 1];
+function identityMatrix() {
+    return [1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1];
+}
+exports.identityMatrix = identityMatrix;
+function interpolate(m1, m2, t) {
+    var m0 = identityMatrix();
+    for (var i = 0; i < 15; i++) {
+        m0[i] = (m1[i] * t + m2[i] * (1 - t));
+    }
+    return m0;
+}
+exports.interpolate = interpolate;
 /**
 * Transpose the values of a mat4
 *
@@ -415,6 +471,31 @@ function rotateY(m, rad) {
     m[11] = a03 * sin + a23 * cos;
 }
 exports.rotateY = rotateY;
+/**
+ * Rotates a matrix by the given angle around the Z axis
+ */
+function rotateZ(m, rad) {
+    var s = Math.sin(rad);
+    var c = Math.cos(rad);
+    var a00 = m[0];
+    var a01 = m[1];
+    var a02 = m[2];
+    var a03 = m[3];
+    var a10 = m[4];
+    var a11 = m[5];
+    var a12 = m[6];
+    var a13 = m[7];
+    // Perform axis-specific matrix multiplication
+    m[0] = a00 * c + a10 * s;
+    m[1] = a01 * c + a11 * s;
+    m[2] = a02 * c + a12 * s;
+    m[3] = a03 * c + a13 * s;
+    m[4] = a10 * c - a00 * s;
+    m[5] = a11 * c - a01 * s;
+    m[6] = a12 * c - a02 * s;
+    m[7] = a13 * c - a03 * s;
+}
+exports.rotateZ = rotateZ;
 var BeveledCube = /** @class */ (function () {
     function BeveledCube(bevel) {
         if (bevel === void 0) { bevel = 0; }
@@ -849,17 +930,55 @@ var gameState = new gameState_1.Game(gameWindow);
 window.onresize = function () {
     gameState.onResize();
 };
-gameWindow.canvas2d.addEventListener('mousedown', function (event) {
-    console.log("mouseDown");
+gameWindow.canvas2d.addEventListener('mousemove', function (event) {
     var x = event.pageX - gameWindow.canvas2d.width / 2;
     var y = event.pageY - gameWindow.canvas2d.height / 2;
     console.log(y, x);
     //gameState.addPoint(x / 100, -y / 100, 0.0);
-    gameState.deleteFirstPoint();
+    gameState.moveCursor(x, y);
 });
+exports.rotateTo = function (x, y, z) {
+    gameState.rotateController(x, y, z);
+};
 setTimeout(function () { gameState.draw(); }, 1000);
 
-},{"./gameState":1,"./windowManager":5}],5:[function(require,module,exports){
+},{"./gameState":1,"./windowManager":6}],5:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var ui_1 = require("./ui");
+var receiver = new RTCPeerConnection();
+function handleMessage(message) {
+    var data = new Float32Array(message.data);
+    // 0 north, 180 south
+    var x = data[0]; // 0 - 360
+    // 0 horizontal, 90 top up, (-)180 flipped horizontal, -90 bottom up
+    var y = data[1]; // -180 - 180
+    // 0 straight,  90 right up, -90 left up
+    var z = data[2]; // -90 - 90
+    x = x / 180 * Math.PI;
+    y = (y + 180) / 180 * Math.PI;
+    z = (z + 90) / 180 * Math.PI;
+    ui_1.rotateTo(z, x, y);
+}
+receiver.ondatachannel = function (event) {
+    console.log("Wow a data channel!");
+    event.channel.onmessage = handleMessage;
+    event.channel.onopen = function (_e) { return console.log("Channel opened!"); };
+    event.channel.onclose = function (_e) { return console.log("Channel closed!"); };
+};
+var socket = io();
+socket.on('sendDesc', function (msg) {
+    console.log("Received sendDesc!");
+    var sendDesc = JSON.parse(msg);
+    receiver.setRemoteDescription(sendDesc)
+        .then(function () { return receiver.createAnswer(); })
+        .then(function (ans) { return receiver.setLocalDescription(ans); })
+        .then(function () {
+        setTimeout(function () { return socket.emit('recDesc', JSON.stringify(receiver.localDescription)); }, 300);
+    });
+});
+
+},{"./ui":4}],6:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 function isCanvas(obj) {
@@ -926,4 +1045,4 @@ var GameWindow = /** @class */ (function () {
 }());
 exports.GameWindow = GameWindow;
 
-},{}]},{},[4]);
+},{}]},{},[5]);

@@ -1,4 +1,4 @@
-import { BeveledCube, makePerspectiveMatrix, makeTranslationMatrix, mat4, Model, identityMatrix, translate, multiply, scale, rotateX, rotateY } from './geometry';
+import { BeveledCube, makePerspectiveMatrix, makeTranslationMatrix, mat4, Model, identityMatrix, translate, multiply, scale, rotateX, rotateY, rotateZ, interpolate } from './geometry';
 import { GameWindow } from './windowManager';
 import { ShaderManager } from './shaders';
 
@@ -12,7 +12,7 @@ export class Camera {
     viewMatrix: mat4; // Translation + rotation
     constructor(aspectRatio: number) {
         this.perspectiveMatrix = makePerspectiveMatrix(this.fieldOfView, aspectRatio, this.zNear, this.zFar);
-        this.viewMatrix = makeTranslationMatrix(0, 0, -12);
+        this.viewMatrix = makeTranslationMatrix(0, -3, -12);
     }
 
     public setAspectRatio(aspectRatio: number) {
@@ -58,6 +58,7 @@ export class Game {
     gameWindow: GameWindow;
     shaderManager: ShaderManager;
     lastUpdate: number | null = null;
+    cursorProjection: mat4[];
 
     constructor(gameWindow: GameWindow) {
         const aspectRatio = gameWindow.canvas2d.width / gameWindow.canvas2d.height;
@@ -69,7 +70,7 @@ export class Game {
             this.addPoint(point[1], point[2], -point[0] * speed / 2);
         }
 
-        this.transformations.push(identityMatrix.slice() as mat4);
+        this.cursorProjection = [identityMatrix()];
         this.colors.push([1, 0, 0, 1]);
         /*for (let x = -12; x <= 10; x += 3) {
             for (let y = -12; y <= 10; y += 3) {
@@ -93,16 +94,42 @@ export class Game {
     }
 
     public addPoint(x: number, y: number, z: number) {
-        let t = identityMatrix.slice() as mat4;
+        let t = identityMatrix();
         if (Math.abs(x) < 2 && Math.abs(y) < 2)
             x *= 2 / Math.abs(x);
         translate(t, x, y, z);
         this.transformations.push(t);
         let rgb = HuetoRGB(Math.random());
         this.colors.push([rgb[0], rgb[1], rgb[2], 1.0]);
-        let ti = Math.round(performance.now());
+        // let ti = Math.round(performance.now());
         // points.push([ti, x, y]);
         // console.log(JSON.stringify(points));
+    }
+
+    public moveCursor(x: number, y: number) {
+        let newCursor = identityMatrix();
+        rotateX(newCursor, 0.1);
+        rotateY(newCursor, 0.1);
+        translate(newCursor, x / 100, -y / 100 + 4, -10);
+        this.cursorProjection.push(newCursor);
+        while (this.cursorProjection.length > 100) {
+            this.cursorProjection.shift();
+        }
+    }
+
+    public rotateController(x: number, y: number, z: number) {
+        let newCursor = identityMatrix();
+        translate(newCursor, 0, 2, -10);
+        // console.log("x y z: ", Math.floor(x), Math.floor(y), Math.floor(z));
+        rotateY(newCursor, y);
+        rotateZ(newCursor, z);
+        rotateX(newCursor, -x);
+        translate(newCursor, -10, 0, 0);
+        scale(newCursor, 2, 0.5, 0.1);
+        this.cursorProjection.push(newCursor);
+        while (this.cursorProjection.length > 100) {
+            this.cursorProjection.shift();
+        }
     }
 
     public deleteFirstPoint() {
@@ -125,7 +152,36 @@ export class Game {
 
     public draw() {
         // TODO
-        this.shaderManager.draw();
+        this.shaderManager.clear();
+
+        for (let i in this.transformations) {
+            this.shaderManager.setColor(this.colors[i]);
+            let modelViewMatrix = this.camera.viewMatrix.slice() as mat4;
+            multiply(modelViewMatrix, this.transformations[i]);
+            this.shaderManager.setModelViewMatrix(modelViewMatrix);
+            this.shaderManager.draw();
+        }
+        for (let i = this.cursorProjection.length - 1; i > 0; i--) {
+            for (let interp_number = 0; interp_number < 5; interp_number++) {
+                let interpolatedMatrix = this.camera.viewMatrix.slice() as mat4;
+                let interp_factor = interp_number / 5;
+                multiply(interpolatedMatrix, interpolate(this.cursorProjection[i], this.cursorProjection[i - 1], interp_factor));
+                let scale_factor = 1 - (this.cursorProjection.length - i - interp_factor) / 30;
+                scale_factor *= scale_factor * scale_factor * scale_factor;
+                console.log(scale_factor);
+                if (scale_factor < 0.1) {
+                    i = 0;
+                    break;
+                }
+                scale(interpolatedMatrix, scale_factor, scale_factor, scale_factor);
+                let r = 0.05 + scale_factor * 0.35;
+                let g = r;
+                let b = 0.1 + scale_factor * 0.9;
+                this.shaderManager.setColor([r, g, b, 1]);
+                this.shaderManager.setModelViewMatrix(interpolatedMatrix);
+                this.shaderManager.draw();
+            }
+        }
     }
 
     public update(currentMillis: number) {
@@ -154,7 +210,7 @@ export class Game {
         let bpm = 125;
         let phase = (currentMillis * bpm / 60000) % 1;
         phase = phase * 2 - 1;
-        let cubeModel = new BeveledCube(Math.exp(-10 * phase * phase) / 4 + 0.05);
+        let cubeModel = new BeveledCube(Math.exp(-10 * phase * phase) / 3 + 0.1);
         this.shaderManager.setVertices(cubeModel.getVertices());
         this.lastUpdate = currentMillis;
     }
@@ -162,14 +218,8 @@ export class Game {
     public tick(dt: number) {
         // Stress testing browsers for fun
         this.update(dt);
-        this.shaderManager.clear();
-        for (let i in this.transformations) {
-            this.shaderManager.setColor(this.colors[i]);
-            let modelViewMatrix = this.camera.viewMatrix.slice() as mat4;
-            multiply(modelViewMatrix, this.transformations[i]);
-            this.shaderManager.setModelViewMatrix(modelViewMatrix);
-            this.draw();
-        }
+        this.draw();
+
         requestAnimationFrame((dt: number) => { this.tick(dt); });
     }
 }
