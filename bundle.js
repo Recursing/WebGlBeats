@@ -27,7 +27,6 @@ var woosh2 = new Audio('woosh.mp3');
 var woosh3 = new Audio('woosh.mp3');
 var played = true;
 points.sort(function (a, b) { return b[0] - a[0]; });
-console.log(points[0], points[2]);
 var speed = 0.1;
 function HuetoRGB(hue) {
     var hue2rgb = function hue2rgb(p, q, t) {
@@ -53,6 +52,7 @@ function HuetoRGB(hue) {
 var Game = /** @class */ (function () {
     function Game(gameWindow) {
         this.lastUpdate = null;
+        this.paused = true;
         var aspectRatio = gameWindow.canvas2d.width / gameWindow.canvas2d.height;
         this.camera = new Camera(aspectRatio);
         this.geometry = new geometry_1.BeveledCube(1);
@@ -71,8 +71,8 @@ var Game = /** @class */ (function () {
                 this.transformations.push(t);
                 this.colors.push([Math.random(), Math.random(), Math.random(), 1.0]);
             }
-        }*/
-        console.log(this.transformations.length);
+        }
+        console.log(this.transformations.length); */
         this.gameWindow = gameWindow;
         this.shaderManager = new shaders_1.ShaderManager(gameWindow.gl);
         this.shaderManager.setCamera(this.camera);
@@ -80,10 +80,13 @@ var Game = /** @class */ (function () {
         this.shaderManager.setNormals(this.geometry.getNormals());
         this.shaderManager.setTriangles(this.geometry.getTriangleIndices());
         this.shaderManager.setColor([1.0, 0, 0, 1.0]);
-        this.draw();
-        console.log("hmmm");
+        //this.draw();
         this.tick(0);
     }
+    Game.prototype.start = function () {
+        this.paused = false;
+        this.tick(0);
+    };
     Game.prototype.addPoint = function (x, y, z) {
         var t = geometry_1.identityMatrix();
         if (Math.abs(x) < 2 && Math.abs(y) < 2)
@@ -151,15 +154,15 @@ var Game = /** @class */ (function () {
                 var interpolatedMatrix = this.camera.viewMatrix.slice();
                 var interp_factor = interp_number / 5;
                 geometry_1.multiply(interpolatedMatrix, geometry_1.interpolate(this.cursorProjection[i], this.cursorProjection[i - 1], interp_factor));
-                var scale_factor = 1 - (this.cursorProjection.length - i - interp_factor) / 30;
-                scale_factor *= scale_factor * scale_factor * scale_factor;
-                console.log(scale_factor);
-                if (scale_factor < 0.1) {
+                var reversed_index = this.cursorProjection.length - 1 - i;
+                var scale_factor = 1 - (reversed_index - interp_factor) / 20;
+                scale_factor *= scale_factor;
+                if (scale_factor < 0.2) {
                     i = 0;
                     break;
                 }
                 geometry_1.scale(interpolatedMatrix, scale_factor, scale_factor, scale_factor);
-                var r = 0.05 + scale_factor * 0.35;
+                var r = 0.05 + scale_factor * 0.05;
                 var g = r;
                 var b = 0.1 + scale_factor * 0.9;
                 this.shaderManager.setColor([r, g, b, 1]);
@@ -201,8 +204,10 @@ var Game = /** @class */ (function () {
     Game.prototype.tick = function (dt) {
         var _this = this;
         // Stress testing browsers for fun
-        this.update(dt);
-        this.draw();
+        if (!this.paused) {
+            this.update(dt);
+            this.draw();
+        }
         requestAnimationFrame(function (dt) { _this.tick(dt); });
     };
     return Game;
@@ -817,10 +822,8 @@ var Locations = /** @class */ (function () {
         this.aVertexNormal = this.tryGetLocation("aVertexNormal", program, gl);
     }
     Locations.prototype.tryGetLocation = function (name, program, gl) {
-        console.log("name " + name);
         var maybeLoc = name[0] === 'a' ? gl.getAttribLocation(program, name) : gl.getUniformLocation(program, name);
         if (maybeLoc !== null) {
-            console.log(maybeLoc);
             return maybeLoc;
         }
         throw Error("Cannot get " + name + " location!");
@@ -925,6 +928,21 @@ exports.ShaderManager = ShaderManager;
 exports.__esModule = true;
 var windowManager_1 = require("./windowManager");
 var gameState_1 = require("./gameState");
+var webRTCReceiver_1 = require("./webRTCReceiver");
+function isImage(obj) {
+    if (!obj)
+        return false;
+    return obj.tagName === "IMG";
+}
+fetch("localIP")
+    .then(function (response) { return response.text(); })
+    .then(function (address) {
+    var imgElement = document.getElementById("qrcode");
+    if (!isImage(imgElement)) {
+        throw new Error("imgElement not found or not image");
+    }
+    imgElement.src = "https://api.qrserver.com/v1/create-qr-code/?data=http%3A%2F%2F" + address + ":3000/w.html&amp;size=300x300";
+});
 var gameWindow = new windowManager_1.GameWindow();
 var gameState = new gameState_1.Game(gameWindow);
 window.onresize = function () {
@@ -937,18 +955,29 @@ gameWindow.canvas2d.addEventListener('mousemove', function (event) {
     //gameState.addPoint(x / 100, -y / 100, 0.0);
     gameState.moveCursor(x, y);
 });
-exports.rotateTo = function (x, y, z) {
+var firstRotation = true;
+webRTCReceiver_1.messageHandler.onRotate = function (x, y, z) {
+    if (firstRotation && x && y && z) {
+        firstRotation = false;
+        gameState.start();
+    }
     gameState.rotateController(x, y, z);
 };
-setTimeout(function () { gameState.draw(); }, 1000);
 
-},{"./gameState":1,"./windowManager":6}],5:[function(require,module,exports){
+},{"./gameState":1,"./webRTCReceiver":5,"./windowManager":6}],5:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
-var ui_1 = require("./ui");
 var receiver = new RTCPeerConnection();
+exports.messageHandler = {
+    onRotate: function (x, y, z) { }
+};
 function handleMessage(message) {
     var data = new Float32Array(message.data);
+    if (data.length == 0) {
+        console.log("recieved empty message, wtf?");
+        console.log(message.data.length);
+        return;
+    }
     // 0 north, 180 south
     var x = data[0]; // 0 - 360
     // 0 horizontal, 90 top up, (-)180 flipped horizontal, -90 bottom up
@@ -958,7 +987,7 @@ function handleMessage(message) {
     x = x / 180 * Math.PI;
     y = (y + 180) / 180 * Math.PI;
     z = (z + 90) / 180 * Math.PI;
-    ui_1.rotateTo(z, x, y);
+    exports.messageHandler.onRotate(z, x, y);
 }
 receiver.ondatachannel = function (event) {
     console.log("Wow a data channel!");
@@ -978,7 +1007,7 @@ socket.on('sendDesc', function (msg) {
     });
 });
 
-},{"./ui":4}],6:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 function isCanvas(obj) {
@@ -1001,7 +1030,6 @@ var GameWindow = /** @class */ (function () {
             antialias: true,
             depth: true
         });
-        console.log("hey!");
         if (!maybeGl) {
             alert("webgl not foud!");
             throw Error("webgl not found!");
@@ -1045,4 +1073,4 @@ var GameWindow = /** @class */ (function () {
 }());
 exports.GameWindow = GameWindow;
 
-},{}]},{},[5]);
+},{}]},{},[4]);

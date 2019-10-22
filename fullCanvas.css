@@ -7,6 +7,13 @@ canvas {
   left: 0;
 }
 
+img {
+  display: block;
+  transform: translateY(80%);
+  margin: 0 auto;
+}
+
+
 #overlay {
   position: fixed;
   top: 25px;

@@ -30,7 +30,6 @@ let woosh3 = new Audio('woosh.mp3');
 let played = true;
 
 points.sort((a, b) => b[0] - a[0]);
-console.log(points[0], points[2]);
 let speed = 0.1;
 
 function HuetoRGB(hue: number): [number, number, number] {
@@ -59,6 +58,7 @@ export class Game {
     shaderManager: ShaderManager;
     lastUpdate: number | null = null;
     cursorProjection: mat4[];
+    paused = true;
 
     constructor(gameWindow: GameWindow) {
         const aspectRatio = gameWindow.canvas2d.width / gameWindow.canvas2d.height;
@@ -79,8 +79,8 @@ export class Game {
                 this.transformations.push(t);
                 this.colors.push([Math.random(), Math.random(), Math.random(), 1.0]);
             }
-        }*/
-        console.log(this.transformations.length);
+        }
+        console.log(this.transformations.length); */
         this.gameWindow = gameWindow;
         this.shaderManager = new ShaderManager(gameWindow.gl);
         this.shaderManager.setCamera(this.camera);
@@ -88,8 +88,12 @@ export class Game {
         this.shaderManager.setNormals(this.geometry.getNormals());
         this.shaderManager.setTriangles(this.geometry.getTriangleIndices());
         this.shaderManager.setColor([1.0, 0, 0, 1.0]);
-        this.draw();
-        console.log("hmmm");
+        //this.draw();
+        this.tick(0);
+    }
+
+    public start() {
+        this.paused = false;
         this.tick(0);
     }
 
@@ -166,15 +170,15 @@ export class Game {
                 let interpolatedMatrix = this.camera.viewMatrix.slice() as mat4;
                 let interp_factor = interp_number / 5;
                 multiply(interpolatedMatrix, interpolate(this.cursorProjection[i], this.cursorProjection[i - 1], interp_factor));
-                let scale_factor = 1 - (this.cursorProjection.length - i - interp_factor) / 30;
-                scale_factor *= scale_factor * scale_factor * scale_factor;
-                console.log(scale_factor);
-                if (scale_factor < 0.1) {
+                let reversed_index = this.cursorProjection.length - 1 - i;
+                let scale_factor = 1 - (reversed_index - interp_factor) / 20;
+                scale_factor *= scale_factor;
+                if (scale_factor < 0.2) {
                     i = 0;
                     break;
                 }
                 scale(interpolatedMatrix, scale_factor, scale_factor, scale_factor);
-                let r = 0.05 + scale_factor * 0.35;
+                let r = 0.05 + scale_factor * 0.05;
                 let g = r;
                 let b = 0.1 + scale_factor * 0.9;
                 this.shaderManager.setColor([r, g, b, 1]);
@@ -217,9 +221,10 @@ export class Game {
 
     public tick(dt: number) {
         // Stress testing browsers for fun
-        this.update(dt);
-        this.draw();
-
+        if (!this.paused) {
+            this.update(dt);
+            this.draw();
+        }
         requestAnimationFrame((dt: number) => { this.tick(dt); });
     }
 }

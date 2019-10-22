@@ -2,6 +2,23 @@
 
 import { GameWindow } from './windowManager';
 import { Game } from './gameState';
+import { messageHandler } from './webRTCReceiver';
+function isImage(obj: HTMLElement | null | undefined): obj is HTMLImageElement {
+  if (!obj)
+    return false;
+  return obj.tagName === "IMG";
+}
+
+
+fetch("localIP")
+  .then((response) => response.text())
+  .then((address) => {
+    const imgElement = document.getElementById("qrcode");
+    if (!isImage(imgElement)) {
+      throw new Error("imgElement not found or not image");
+    }
+    imgElement.src = `https://api.qrserver.com/v1/create-qr-code/?data=http%3A%2F%2F${address}:3000/w.html&amp;size=300x300`;
+  });
 
 const gameWindow = new GameWindow();
 
@@ -20,9 +37,11 @@ gameWindow.canvas2d.addEventListener('mousemove', function (event) {
   gameState.moveCursor(x, y);
 });
 
-export let rotateTo = function (x: number, y: number, z: number) {
+let firstRotation = true;
+messageHandler.onRotate = function (x: number, y: number, z: number) {
+  if (firstRotation && x && y && z) {
+    firstRotation = false;
+    gameState.start();
+  }
   gameState.rotateController(x, y, z);
 }
-
-
-setTimeout(function () { gameState.draw(); }, 1000);

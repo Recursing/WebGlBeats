@@ -1,10 +1,16 @@
-import { rotateTo } from './ui';
-
 const receiver = new RTCPeerConnection();
+export let messageHandler = {
+    onRotate: function (x: number, y: number, z: number) { }
+}
 
 function handleMessage(message: MessageEvent) {
 
     const data = new Float32Array(message.data);
+    if (data.length == 0) {
+        console.log("recieved empty message, wtf?");
+        console.log(message.data.length);
+        return;
+    }
     // 0 north, 180 south
     let x = data[0]; // 0 - 360
 
@@ -17,7 +23,7 @@ function handleMessage(message: MessageEvent) {
     x = x / 180 * Math.PI;
     y = (y + 180) / 180 * Math.PI;
     z = (z + 90) / 180 * Math.PI;
-    rotateTo(z, x, y);
+    messageHandler.onRotate(z, x, y);
 }
 
 receiver.ondatachannel = (event) => {

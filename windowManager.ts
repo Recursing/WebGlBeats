@@ -24,7 +24,6 @@ export class GameWindow {
             antialias: true,
             depth: true
         });
-        console.log("hey!");
         if (!maybeGl) {
             alert("webgl not foud!");
             throw Error("webgl not found!");

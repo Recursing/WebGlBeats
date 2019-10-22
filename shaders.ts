@@ -87,10 +87,8 @@ class Locations {
     aVertexNormal: number;
 
     tryGetLocation(name: string, program: WebGLProgram, gl: WebGLRenderingContext): number | WebGLUniformLocation {
-        console.log("name " + name);
         let maybeLoc = name[0] === 'a' ? gl.getAttribLocation(program, name) : gl.getUniformLocation(program, name);
         if (maybeLoc !== null) {
-            console.log(maybeLoc);
             return maybeLoc
         }
         throw Error("Cannot get " + name + " location!");
