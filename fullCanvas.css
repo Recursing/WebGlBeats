@@ -9,8 +9,16 @@ canvas {
 
 img {
   display: block;
-  transform: translateY(80%);
+  transform: translateY(50%);
   margin: 0 auto;
+}
+
+#hello-container{
+  margin: auto;
+  padding: 20px;
+  font-family: Arial;
+  text-align: center;
+  width: 600px;
 }
 
 

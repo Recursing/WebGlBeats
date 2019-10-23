@@ -13,11 +13,13 @@
 
 
 <body>
-  <img id='qrcode' src="https://api.qrserver.com/v1/create-qr-code/?data=PleaseWait&amp;size=300x300" width="300"
-    height="300" />
+  <div id="hello-container">
+    <h1>Please scan the code below</h1>
+    <img id='qrcode' src="loading.png" width="300" height="300" />
+  </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
-  <canvas id="webglcanvas"></canvas>
   <canvas id="canvas2d"></canvas>
+  <canvas id="webglcanvas"></canvas>
   <script src="bundle.js"></script>
 
 </body>

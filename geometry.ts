@@ -15,6 +15,18 @@ export function interpolate(m1: mat4, m2: mat4, t: number): mat4 {
     return m0;
 }
 
+export function multiInterpolate(mats: mat4[], t: number): mat4 {
+    // TODO
+    let m0 = identityMatrix();
+    let order = mats.length;
+    for (let i = 0; i < 15; i++) {
+        m0[i] = 0;
+        for (let j = 0; j < order; j++) {
+            m0[i] += mats[j][i] * t; // TODO
+        }
+    }
+    return m0;
+}
 /**
 * Transpose the values of a mat4
 *

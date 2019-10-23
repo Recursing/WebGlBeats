@@ -1,18 +1,26 @@
 const receiver = new RTCPeerConnection();
+let channel: RTCDataChannel | null = null;
 export let messageHandler = {
-    onRotate: function (x: number, y: number, z: number) { }
+    onRotate: function (_x: number, _y: number, _z: number) { },
+    onCalibrate: function (_x: number, _y: number, _z: number) { },
+    onClick: function (_x: number, _y: number, _z: number) { },
+    sendVibrate: function (duration: number) {
+        if (channel) {
+            channel.send(new Uint16Array([duration]));
+        }
+    }
 }
 
-function handleMessage(message: MessageEvent) {
-
+function handleMessage(this: RTCDataChannel, message: MessageEvent) {
     const data = new Float32Array(message.data);
     if (data.length == 0) {
         console.log("recieved empty message, wtf?");
-        console.log(message.data.length);
+        console.log("data", message.data.arraybuffer);
+        console.log("md", JSON.stringify(message.data));
         return;
     }
     // 0 north, 180 south
-    let x = data[0]; // 0 - 360
+    let x = data[0] % 360; // 0 - 360
 
     // 0 horizontal, 90 top up, (-)180 flipped horizontal, -90 bottom up
     let y = data[1]; // -180 - 180
@@ -23,7 +31,13 @@ function handleMessage(message: MessageEvent) {
     x = x / 180 * Math.PI;
     y = (y + 180) / 180 * Math.PI;
     z = (z + 90) / 180 * Math.PI;
-    messageHandler.onRotate(z, x, y);
+    if (data[0] < 360) {
+        messageHandler.onRotate(z, x, y);
+    } else if (data[0] < 720) {
+        messageHandler.onCalibrate(z, x, y);
+    } else {
+        messageHandler.onClick(z, x, y);
+    }
 }
 
 receiver.ondatachannel = (event) => {
@@ -31,6 +45,7 @@ receiver.ondatachannel = (event) => {
     event.channel.onmessage = handleMessage;
     event.channel.onopen = (_e) => console.log("Channel opened!");
     event.channel.onclose = (_e) => console.log("Channel closed!");
+    channel = event.channel;
 };
 
 let socket = io();

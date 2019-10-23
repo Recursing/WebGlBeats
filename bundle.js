@@ -10,7 +10,7 @@ var Camera = /** @class */ (function () {
         this.zFar = 1000.0;
         this.aspectRatio = 1.0;
         this.perspectiveMatrix = geometry_1.makePerspectiveMatrix(this.fieldOfView, aspectRatio, this.zNear, this.zFar);
-        this.viewMatrix = geometry_1.makeTranslationMatrix(0, -3, -12);
+        this.viewMatrix = geometry_1.makeTranslationMatrix(0, -0.5, -6);
     }
     Camera.prototype.setAspectRatio = function (aspectRatio) {
         this.perspectiveMatrix = geometry_1.makePerspectiveMatrix(this.fieldOfView, aspectRatio, this.zNear, this.zFar);
@@ -18,16 +18,34 @@ var Camera = /** @class */ (function () {
     return Camera;
 }());
 exports.Camera = Camera;
-var points = [[5264, 1.93, 0.065], [6193, -0.18, -0.015], [7126, 1.79, -0.285], [7771, -1.36, -0.255], [8250, 3.92, -0.245], [9283, -0.11, 2.665], [10103, 0.17, -3.165], [11119, -0.45, 2.185], [11600, -0.4, -2.255], [12115, -0.66, 3.225], [13187, -0.32, -1.895], [14045, -0.33, 3.415], [14914, -0.41, -1.775], [15445, -0.65, 2.015], [15924, -0.56, -2.555], [16934, 2.78, 0.035], [17829, -1.57, -0.145], [18813, 1.9, -0.275], [19279, -2.21, -0.225], [19735, 0.43, -0.265], [20716, -0.59, 3.165], [21636, -0.51, -2.325], [22653, -0.4, 1.455], [23169, -0.42, -2.045], [23648, -0.51, 1.135], [24518, 3.43, -0.315], [25452, -2.08, -0.475], [26410, 0.04, 2.285], [26941, 0.28, -3.455], [27472, -0.05, 2.215], [28571, -0.1, -3.625], [29353, -0.36, 2.105], [30287, 2.23, -1.185], [30892, -1.88, -0.905], [31335, 1.12, -0.565], [32357, -1.43, 1.625], [33239, 2.38, 2.535], [34070, 0.1, 3.165], [34651, 0.47, -2.175], [35158, -2.22, 0.445], [36167, 1.77, 0.185], [37075, -1.84, 2.825], [37982, 0.7, -3.165], [38512, 1.78, 2.485], [39005, 1.39, -3.775], [39989, -2.53, 2.915], [40856, -2.5, -1.115], [41839, -2.12, 2.185], [42330, -2.15, -1.605], [42835, -1.9, 2.305], [43870, 1.93, -0.045], [44715, -2.9, 0.045], [45674, 2.33, 0.145], [46142, -2.44, 0.305], [46571, 2.04, -0.105], [47605, -0.08, 2.115], [48587, -0.13, -2.185], [49482, -2.77, 0.505], [49986, 2.49, 0.005], [50441, -2.54, 0.355], [51448, 0.61, -2.905], [52343, -0.03, 2.655], [53316, 2.62, 0.345], [53874, -2.06, 0.085], [54352, 1.59, 0.035], [55248, -0.83, 3.355], [56281, -0.5, -3.265], [57127, -2.93, 0.385], [57633, 2.39, 0.295], [58137, -2.52, 0.385], [59146, 1.99, 2.885], [60105, 1.8, -3.035], [61064, 1.44, 3.255], [61607, 1.41, -1.615], [62149, 1.39, 2.645], [62945, -2.87, 3.385], [63954, -2.52, -2.455], [64861, 1.79, 2.465], [65355, 1.89, -1.715], [65870, 1.44, 1.655], [66892, -0.64, 0.135], [67723, 2.64, 0.285], [68595, -1.48, 0.415], [69211, 1.03, 2.715], [69694, 0.35, -1.815], [70687, -1.27, 0.935], [71544, 2.02, 0.475], [72376, -1.33, 0.085], [73084, 2.22, -0.045], [73450, -1.49, 0.535], [73941, 1.23, 2.595], [74447, 0.48, -2.025], [75354, -1.85, 0.635], [76073, 1.41, 0.355], [76816, -1.47, 0.395], [77219, 1.35, 0.305], [78328, -1.19, 1.305], [79298, 2.13, -0.175], [80168, -0.18, 2.115], [81264, 0.08, -1.795], [81732, 0.16, 0.915], [82223, 0.65, -2.225], [83194, 3.34, -0.105], [83885, -0.05, 0.025], [85095, 2.59, 0.375], [86029, 0.22, 0.425], [86923, -0.46, 1.985], [87845, -0.76, -2.865], [88838, -0.75, 3.345], [89846, -0.07, -0.005], [90813, -0.11, 2.455], [91835, -0.01, -0.355], [92742, -0.05, 1.965], [97577, 0.02, 0.275], [98243, 2.35, -0.035], [98585, -0.63, -0.065], [99089, -1.31, -0.025], [99391, 1.75, 0.155], [99908, -1.22, 0.155], [100161, 2.74, 0.365], [100554, -1.79, 0.785], [100994, 0.59, 0.755], [101286, 0.77, -3.005], [101752, -0.23, -1.325], [101968, 0.54, -2.635], [102435, 1.54, -0.075], [102825, -2.13, 2.645], [103104, 1.59, -2.275], [103570, 2.32, 1.145], [104024, -0.89, 1.435], [104517, -0.6, -2.065], [104796, 1.39, 0.185], [105287, -1.33, 1.595], [105744, 0.17, -1.895], [106183, 1.82, 0.555], [106701, -1.38, 1.485], [106943, 1.76, 1.945], [107548, 1.43, -2.275], [108117, 0.67, 1.735], [108585, -0.1, 0.395], [108912, 2.21, -0.515], [109457, -0.3, -0.505], [109748, -0.36, 0.655], [110177, 2.35, -2.155], [110556, -2.41, -0.425], [110860, 0.95, 1.935], [111339, 0.07, -2.425], [111794, -1.52, 1.785], [112235, 1.35, 0.975], [112487, -1.27, -1.415], [113019, -1.07, 2.345], [113472, 1.71, -1.765], [113941, 0.66, 1.625], [114421, -2.28, -0.085], [114661, 2.46, -0.405], [115268, 0.28, -2.255], [115646, 0.44, -0.165], [116013, 3.42, -2.905], [116442, -3.19, 1.855], [116696, 1.35, 0.815], [117176, 0.47, -1.285], [117440, -1.74, 2.905], [117833, 2.82, 0.515], [118288, -1.01, 0.655], [118528, 2.79, 2.095], [119037, 1.54, -1.665], [119477, 0.61, 1.765], [119955, -2.66, 1.515], [120184, -0.32, -1.485], [120677, 2.16, 2.845], [121094, -1.75, 3.335], [121567, -0.91, -1.515], [122077, 1.36, 0.855], [122317, -2.28, 2.155], [122822, -0.68, -0.395], [123440, 0.08, 3.225], [123913, 4, 0.315], [124178, -3.52, 0.375], [124667, -0.89, -1.395], [124944, -1.3, 1.995], [125440, 1.32, -1.385], [125933, 0.26, 1.065], [126249, -3.56, 0.695], [126707, 1.3, 0.065], [127198, 0.56, -3.365], [127638, -0.46, 1.405], [127892, -0.35, -0.025], [128398, 1.78, 0.585], [128827, -4.62, 1.295], [129270, 0.94, -0.215], [129726, -0.15, -2.495], [130003, -1.14, 1.885], [130510, 1.11, 0.185], [130851, -2.33, -0.225], [131255, 1.89, 1.625], [131786, -1.84, -0.795], [132064, -0.93, 2.035], [132520, 1.58, -2.045], [132711, 0.31, -1.205], [133182, 2.5, 2.745], [133631, -1.37, 1.595], [133860, -0.07, -1.075], [134366, 2.58, 2.555], [134769, -0.55, 2.985], [135326, -0.35, -0.305], [135607, 1.52, 2.885], [136041, -2.19, 3.685], [136509, 0.75, 0.415], [136939, -0.49, 3.585], [137432, -1.72, -0.795], [137723, 3.75, 0.315], [138190, -1.47, 2.445], [138434, 0.57, -2.825], [138885, 1.34, 2.525], [139318, -1.74, 2.025], [139584, 1.43, -2.975], [140084, 0.8, 1.045], [140324, -1.59, 1.405], [140753, -1.1, -2.105], [141232, 2.06, 0.085], [141512, -1.71, 2.005], [141978, -0.21, -1.045], [142396, 0.91, 1.345], [142872, -1.61, 2.265], [143150, 1.63, -2.555], [143693, -0.2, 0.305]];
-var song = new Audio('crab_rave.mp3');
-song.play();
-song.volume = 0.1;
+var Note = /** @class */ (function () {
+    function Note(time, x, y, hue) {
+        this.time = time;
+        this.x = x;
+        this.y = y;
+        this.hue = hue;
+    }
+    return Note;
+}());
+var Level = /** @class */ (function () {
+    function Level(songPath, bpm, points, speed) {
+        if (speed === void 0) { speed = 0.1; }
+        this.song = new Audio(songPath);
+        this.bpm = bpm;
+        this.notes = points;
+        this.speed = speed;
+    }
+    Level.prototype.startSong = function () {
+        console.log(this.song);
+        this.song.play();
+    };
+    return Level;
+}());
+exports.Level = Level;
 var woosh = new Audio('woosh.mp3');
 var woosh2 = new Audio('woosh.mp3');
 var woosh3 = new Audio('woosh.mp3');
 var played = true;
-points.sort(function (a, b) { return b[0] - a[0]; });
-var speed = 0.1;
 function HuetoRGB(hue) {
     var hue2rgb = function hue2rgb(p, q, t) {
         if (t < 0)
@@ -49,20 +67,29 @@ function HuetoRGB(hue) {
     var b = hue2rgb(p, q, hue - 1 / 3);
     return [r, g, b];
 }
+var Cursor = /** @class */ (function () {
+    function Cursor() {
+    }
+    return Cursor;
+}());
+exports.Cursor = Cursor;
 var Game = /** @class */ (function () {
     function Game(gameWindow) {
         this.lastUpdate = null;
+        this.cursorProjectionHistory = [];
         this.paused = true;
         var aspectRatio = gameWindow.canvas2d.width / gameWindow.canvas2d.height;
         this.camera = new Camera(aspectRatio);
         this.geometry = new geometry_1.BeveledCube(1);
         this.transformations = [];
         this.colors = [];
-        for (var _i = 0, points_1 = points; _i < points_1.length; _i++) {
-            var point = points_1[_i];
-            this.addPoint(point[1], point[2], -point[0] * speed / 2);
+        // TODO load default or get level in constructor
+        this.currentLevel = new Level('crab_rave.mp3', 125, []);
+        for (var _i = 0, _a = this.currentLevel.notes; _i < _a.length; _i++) {
+            var point = _a[_i];
+            this.addPoint(point.x, point.y, -point.time * this.currentLevel.speed / 2);
         }
-        this.cursorProjection = [geometry_1.identityMatrix()];
+        this.cursorProjectionTrail = [geometry_1.identityMatrix()];
         this.colors.push([1, 0, 0, 1]);
         /*for (let x = -12; x <= 10; x += 3) {
             for (let y = -12; y <= 10; y += 3) {
@@ -85,6 +112,7 @@ var Game = /** @class */ (function () {
     }
     Game.prototype.start = function () {
         this.paused = false;
+        this.currentLevel.startSong();
         this.tick(0);
     };
     Game.prototype.addPoint = function (x, y, z) {
@@ -104,24 +132,27 @@ var Game = /** @class */ (function () {
         geometry_1.rotateX(newCursor, 0.1);
         geometry_1.rotateY(newCursor, 0.1);
         geometry_1.translate(newCursor, x / 100, -y / 100 + 4, -10);
-        this.cursorProjection.push(newCursor);
-        while (this.cursorProjection.length > 100) {
-            this.cursorProjection.shift();
+        this.cursorProjectionTrail.push(newCursor);
+        // this.cursorProjectionHistory.push([this.currentLevel.song.currentTime, newCursor]);
+        while (this.cursorProjectionTrail.length > 100) {
+            this.cursorProjectionTrail.shift();
         }
+        // console.log(JSON.stringify(this.cursorProjectionHistory));
     };
     Game.prototype.rotateController = function (x, y, z) {
         var newCursor = geometry_1.identityMatrix();
-        geometry_1.translate(newCursor, 0, 2, -10);
+        geometry_1.translate(newCursor, 0, 0, 2);
         // console.log("x y z: ", Math.floor(x), Math.floor(y), Math.floor(z));
         geometry_1.rotateY(newCursor, y);
         geometry_1.rotateZ(newCursor, z);
         geometry_1.rotateX(newCursor, -x);
-        geometry_1.translate(newCursor, -10, 0, 0);
-        geometry_1.scale(newCursor, 2, 0.5, 0.1);
-        this.cursorProjection.push(newCursor);
-        while (this.cursorProjection.length > 100) {
-            this.cursorProjection.shift();
+        geometry_1.translate(newCursor, -4, 0, 0);
+        // scale(newCursor, 5, 0.5, 0.1);
+        this.cursorProjectionTrail.push(newCursor);
+        while (this.cursorProjectionTrail.length > 100) {
+            this.cursorProjectionTrail.shift();
         }
+        this.cursorProjectionHistory.push([this.currentLevel.song.currentTime, newCursor]);
     };
     Game.prototype.deleteFirstPoint = function () {
         if (this.transformations.length == 0)
@@ -149,24 +180,36 @@ var Game = /** @class */ (function () {
             this.shaderManager.setModelViewMatrix(modelViewMatrix);
             this.shaderManager.draw();
         }
-        for (var i = this.cursorProjection.length - 1; i > 0; i--) {
-            for (var interp_number = 0; interp_number < 5; interp_number++) {
-                var interpolatedMatrix = this.camera.viewMatrix.slice();
-                var interp_factor = interp_number / 5;
-                geometry_1.multiply(interpolatedMatrix, geometry_1.interpolate(this.cursorProjection[i], this.cursorProjection[i - 1], interp_factor));
-                var reversed_index = this.cursorProjection.length - 1 - i;
+        outer: for (var i = this.cursorProjectionTrail.length - 1; i > 0; i--) {
+            for (var interp_number = 0; interp_number < 10; interp_number++) {
+                var interp_factor = interp_number / 10;
+                var reversed_index = this.cursorProjectionTrail.length - 1 - i;
                 var scale_factor = 1 - (reversed_index - interp_factor) / 20;
                 scale_factor *= scale_factor;
-                if (scale_factor < 0.2) {
-                    i = 0;
-                    break;
+                if (scale_factor < 0.5) {
+                    break outer;
                 }
-                geometry_1.scale(interpolatedMatrix, scale_factor, scale_factor, scale_factor);
-                var r = 0.05 + scale_factor * 0.05;
+                var color_factor = scale_factor * 2 - 1;
+                var r = (0.05 + color_factor * 0.05);
                 var g = r;
-                var b = 0.1 + scale_factor * 0.9;
+                var b = 0.1 + color_factor * 0.9;
                 this.shaderManager.setColor([r, g, b, 1]);
-                this.shaderManager.setModelViewMatrix(interpolatedMatrix);
+                var tempModelMatrix = this.camera.viewMatrix.slice();
+                var interpolatedMatrix = geometry_1.interpolate(this.cursorProjectionTrail[i], this.cursorProjectionTrail[i - 1], interp_factor);
+                geometry_1.multiply(tempModelMatrix, interpolatedMatrix);
+                geometry_1.scale(tempModelMatrix, scale_factor * 2, scale_factor * 0.1, scale_factor * scale_factor * 0.025);
+                this.shaderManager.setModelViewMatrix(tempModelMatrix);
+                this.shaderManager.draw();
+                this.shaderManager.setColor([b, r, g, 1]);
+                tempModelMatrix = this.camera.viewMatrix.slice();
+                var oppositeCursor = this.cursorProjectionTrail[i].slice();
+                geometry_1.translate(oppositeCursor, 8, 0, 0);
+                var prevOppositeCursor = this.cursorProjectionTrail[i - 1].slice();
+                geometry_1.translate(prevOppositeCursor, 8, 0, 0);
+                interpolatedMatrix = geometry_1.interpolate(oppositeCursor, prevOppositeCursor, interp_factor);
+                geometry_1.multiply(tempModelMatrix, interpolatedMatrix);
+                geometry_1.scale(tempModelMatrix, scale_factor * 2, scale_factor * 0.1, scale_factor * scale_factor * 0.025);
+                this.shaderManager.setModelViewMatrix(tempModelMatrix);
                 this.shaderManager.draw();
             }
         }
@@ -177,7 +220,7 @@ var Game = /** @class */ (function () {
         var dt = (currentMillis - this.lastUpdate);
         for (var _i = 0, _a = this.transformations; _i < _a.length; _i++) {
             var modelMatrix = _a[_i];
-            geometry_1.translate(modelMatrix, 0, 0, speed * dt);
+            geometry_1.translate(modelMatrix, 0, 0, this.currentLevel.speed * dt);
         }
         if (!played && this.transformations.length > 0 && this.transformations[this.transformations.length - 1][14] > -20.0) {
             if (woosh.paused)
@@ -194,8 +237,7 @@ var Game = /** @class */ (function () {
         }
         // translate(this.camera.viewMatrix, 0, 0, speed / 20 * dt);
         // this.shaderManager.setCamera(this.camera);
-        var bpm = 125;
-        var phase = (currentMillis * bpm / 60000) % 1;
+        var phase = (currentMillis * this.currentLevel.bpm / 60000) % 1;
         phase = phase * 2 - 1;
         var cubeModel = new geometry_1.BeveledCube(Math.exp(-10 * phase * phase) / 3 + 0.1);
         this.shaderManager.setVertices(cubeModel.getVertices());
@@ -206,15 +248,15 @@ var Game = /** @class */ (function () {
         // Stress testing browsers for fun
         if (!this.paused) {
             this.update(dt);
-            this.draw();
         }
+        this.draw();
         requestAnimationFrame(function (dt) { _this.tick(dt); });
     };
     return Game;
 }());
 exports.Game = Game;
 
-},{"./geometry":2,"./shaders":3}],2:[function(require,module,exports){
+},{"./geometry":2,"./shaders":4}],2:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 function identityMatrix() {
@@ -232,6 +274,19 @@ function interpolate(m1, m2, t) {
     return m0;
 }
 exports.interpolate = interpolate;
+function multiInterpolate(mats, t) {
+    // TODO
+    var m0 = identityMatrix();
+    var order = mats.length;
+    for (var i = 0; i < 15; i++) {
+        m0[i] = 0;
+        for (var j = 0; j < order; j++) {
+            m0[i] += mats[j][i] * t; // TODO
+        }
+    }
+    return m0;
+}
+exports.multiInterpolate = multiInterpolate;
 /**
 * Transpose the values of a mat4
 *
@@ -768,6 +823,139 @@ exports.BeveledCube = BeveledCube;
 
 },{}],3:[function(require,module,exports){
 "use strict";
+exports.__esModule = true;
+var Button = /** @class */ (function () {
+    function Button(x, y, w, h, text) {
+        this.selected = false;
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.text = text;
+    }
+    Button.prototype.draw = function (ctx) {
+        var x = this.x;
+        var y = this.y;
+        var width = this.w;
+        var height = this.h;
+        var text = this.text;
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 10;
+        ctx.fillStyle = this.selected ? "rgba(169, 252, 3, 1)" : "rgba(252, 169, 3, 1)";
+        ctx.beginPath();
+        ctx.moveTo(x + 10, y);
+        ctx.lineTo(x + width - 10, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + 10);
+        ctx.lineTo(x + width, y + height - 10);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - 10, y + height);
+        ctx.lineTo(x + 10, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - 10);
+        ctx.lineTo(x, y + 10);
+        ctx.quadraticCurveTo(x, y, x + 10, y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 2;
+        ctx.fillStyle = "rgba(255,255,255, 1)";
+        var textMetrics = ctx.measureText(text);
+        ctx.strokeText(text, x + width / 2 - textMetrics.width / 2, y + height / 2 + 10);
+        ctx.fillText(text, x + width / 2 - textMetrics.width / 2, y + height / 2 + 10);
+    };
+    Button.prototype.contains = function (y, x) {
+        return (x > this.x && x < this.x + this.w && y > this.y && y < this.y + this.h);
+    };
+    return Button;
+}());
+var Menu = /** @class */ (function () {
+    function Menu(canvas) {
+        this.options = ["Crab Rave", "Mountain King", "Help"];
+        this.onButtonSelect = function () { };
+        this.onButtonDeselect = function () { };
+        this.canvas2d = canvas;
+        var btnWidth = 600;
+        var btnHeight = 120;
+        var padTop = 30;
+        var padLeft = (this.canvas2d.canvas.width - btnWidth) / 2;
+        this.buttons = this.options.map(function (text, i) {
+            return new Button(padLeft, (btnHeight + padTop) * (i + 1), btnWidth, btnHeight, text);
+        });
+    }
+    Menu.prototype.drawButton = function (y, x, height, width, text) {
+        var ctx = this.canvas2d;
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 10;
+        ctx.fillStyle = "rgba(252, 169, 3, 1)";
+        ctx.beginPath();
+        ctx.moveTo(x + 10, y);
+        ctx.lineTo(x + width - 10, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + 10);
+        ctx.lineTo(x + width, y + height - 10);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - 10, y + height);
+        ctx.lineTo(x + 10, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - 10);
+        ctx.lineTo(x, y + 10);
+        ctx.quadraticCurveTo(x, y, x + 10, y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 2;
+        ctx.fillStyle = "rgba(255,255,255, 1)";
+        var textMetrics = ctx.measureText(text);
+        ctx.strokeText(text, x + width / 2 - textMetrics.width / 2, y + height / 2 + 10);
+        ctx.fillText(text, x + width / 2 - textMetrics.width / 2, y + height / 2 + 10);
+    };
+    Menu.prototype.drawCursor = function (yAngle, xAngle) {
+        var _this = this;
+        var y0 = Math.PI;
+        var x0 = Math.PI / 2;
+        yAngle -= y0;
+        xAngle -= x0;
+        var menuDistance = 800;
+        var xCenter = this.canvas2d.canvas.width / 2;
+        var yCenter = this.canvas2d.canvas.height / 2;
+        var cx = xCenter + Math.tan(-xAngle) * menuDistance;
+        var cy = yCenter - Math.tan(yAngle) * menuDistance + 30;
+        var ctx = this.canvas2d;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 10, 0, 2 * Math.PI, false);
+        ctx.fillStyle = 'rgba(200,200,255,0.9)';
+        ctx.fill();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'rgba(0,50,0,0.8)';
+        ctx.stroke();
+        this.buttons.map(function (btn) {
+            if (btn.contains(cy, cx) && !btn.selected) {
+                _this.onButtonSelect();
+                btn.selected = true;
+            }
+            if (!btn.contains(cy, cx) && btn.selected) {
+                _this.onButtonDeselect();
+                btn.selected = false;
+            }
+        });
+    };
+    Menu.prototype.draw = function () {
+        var _this = this;
+        this.canvas2d.fillStyle = "rgba(92, 166, 209, 0.9)";
+        this.canvas2d.fillRect(0, 0, this.canvas2d.canvas.width, this.canvas2d.canvas.height);
+        this.canvas2d.font = "30px Arial";
+        var instructions = "Point at the screen and tap with two fingers to calibrate rotation";
+        var textMetrics = this.canvas2d.measureText(instructions);
+        this.canvas2d.fillStyle = "rgba(0, 0, 0, 1)";
+        this.canvas2d.fillText(instructions, 10 + this.canvas2d.canvas.width / 2 - textMetrics.width / 2, 50);
+        instructions = "Select a button and tap with one finger to press it";
+        textMetrics = this.canvas2d.measureText(instructions);
+        this.canvas2d.fillText(instructions, 10 + this.canvas2d.canvas.width / 2 - textMetrics.width / 2, 100);
+        this.buttons.map(function (btn) { return btn.draw(_this.canvas2d); });
+    };
+    return Menu;
+}());
+exports.Menu = Menu;
+
+},{}],4:[function(require,module,exports){
+"use strict";
 var __spreadArrays = (this && this.__spreadArrays) || function () {
     for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
     for (var r = Array(s), k = 0, i = 0; i < il; i++)
@@ -909,7 +1097,7 @@ var ShaderManager = /** @class */ (function () {
     ShaderManager.prototype.clear = function () {
         var gl = this.gl;
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-        gl.clearColor(0.0, 0.1, 0.2, 1);
+        gl.clearColor(0.0, 0.0, 0.0, 0.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
     };
     ShaderManager.prototype.draw = function () {
@@ -923,12 +1111,13 @@ var ShaderManager = /** @class */ (function () {
 }());
 exports.ShaderManager = ShaderManager;
 
-},{"./geometry":2}],4:[function(require,module,exports){
+},{"./geometry":2}],5:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var windowManager_1 = require("./windowManager");
 var gameState_1 = require("./gameState");
 var webRTCReceiver_1 = require("./webRTCReceiver");
+var menu_1 = require("./menu");
 function isImage(obj) {
     if (!obj)
         return false;
@@ -945,41 +1134,82 @@ fetch("localIP")
 });
 var gameWindow = new windowManager_1.GameWindow();
 var gameState = new gameState_1.Game(gameWindow);
+var menu = new menu_1.Menu(gameWindow.ctx);
 window.onresize = function () {
     gameState.onResize();
 };
-gameWindow.canvas2d.addEventListener('mousemove', function (event) {
+gameWindow.canvasgl.addEventListener('mousemove', function (event) {
     var x = event.pageX - gameWindow.canvas2d.width / 2;
     var y = event.pageY - gameWindow.canvas2d.height / 2;
-    console.log(y, x);
+    // console.log(y, x);
     //gameState.addPoint(x / 100, -y / 100, 0.0);
     gameState.moveCursor(x, y);
 });
+gameWindow.canvasgl.addEventListener('mousedown', function (_event) {
+    webRTCReceiver_1.messageHandler.sendVibrate(100);
+});
+menu.onButtonSelect = function () { return webRTCReceiver_1.messageHandler.sendVibrate(100); };
+menu.onButtonDeselect = function () { return webRTCReceiver_1.messageHandler.sendVibrate(50); };
 var firstRotation = true;
+var cy = 0;
+function subMod2Pi(source, delta, mod) {
+    if (mod === void 0) { mod = 2 * Math.PI; }
+    return (source + mod - delta) % mod;
+}
 webRTCReceiver_1.messageHandler.onRotate = function (x, y, z) {
+    //console.log(x.toFixed(2), y.toFixed(2), z.toFixed(2));
     if (firstRotation && x && y && z) {
         firstRotation = false;
+        console.log(x, y, z);
+        console.log(x.toFixed(2), y.toFixed(2), z.toFixed(2));
+        cy = 0;
         gameState.start();
+        var helloContainer = document.getElementById('hello-container');
+        if (!helloContainer) {
+            throw Error("Cannot find hello-container");
+        }
+        helloContainer.style.display = 'none';
     }
+    y = subMod2Pi(y, cy);
+    menu.draw();
+    menu.drawCursor(z, y);
     gameState.rotateController(x, y, z);
 };
+webRTCReceiver_1.messageHandler.onCalibrate = function (x, y, z) {
+    console.log("Calibrating!");
+    if (Math.abs(z - Math.PI) > 0.1 || Math.abs(x - Math.PI / 2) > 0.1) {
+        console.warn("Phone is calibrating without being horizontal!");
+    }
+    var wy = Math.PI / 2;
+    cy = (y - wy) % Math.PI;
+};
 
-},{"./gameState":1,"./webRTCReceiver":5,"./windowManager":6}],5:[function(require,module,exports){
+},{"./gameState":1,"./menu":3,"./webRTCReceiver":6,"./windowManager":7}],6:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var receiver = new RTCPeerConnection();
+var channel = null;
 exports.messageHandler = {
-    onRotate: function (x, y, z) { }
+    onRotate: function (_x, _y, _z) { },
+    onCalibrate: function (_x, _y, _z) { },
+    sendVibrate: function (duration) {
+        // console.log("called sendV");
+        if (channel) {
+            console.log("sending ", duration);
+            channel.send(new Uint16Array([duration]));
+        }
+    }
 };
 function handleMessage(message) {
     var data = new Float32Array(message.data);
     if (data.length == 0) {
         console.log("recieved empty message, wtf?");
-        console.log(message.data.length);
+        console.log("data", message.data.arraybuffer);
+        console.log("md", JSON.stringify(message.data));
         return;
     }
     // 0 north, 180 south
-    var x = data[0]; // 0 - 360
+    var x = data[0] % 360; // 0 - 360
     // 0 horizontal, 90 top up, (-)180 flipped horizontal, -90 bottom up
     var y = data[1]; // -180 - 180
     // 0 straight,  90 right up, -90 left up
@@ -987,13 +1217,19 @@ function handleMessage(message) {
     x = x / 180 * Math.PI;
     y = (y + 180) / 180 * Math.PI;
     z = (z + 90) / 180 * Math.PI;
-    exports.messageHandler.onRotate(z, x, y);
+    if (data[0] < 360) {
+        exports.messageHandler.onRotate(z, x, y);
+    }
+    else {
+        exports.messageHandler.onCalibrate(z, x, y);
+    }
 }
 receiver.ondatachannel = function (event) {
     console.log("Wow a data channel!");
     event.channel.onmessage = handleMessage;
     event.channel.onopen = function (_e) { return console.log("Channel opened!"); };
     event.channel.onclose = function (_e) { return console.log("Channel closed!"); };
+    channel = event.channel;
 };
 var socket = io();
 socket.on('sendDesc', function (msg) {
@@ -1007,7 +1243,7 @@ socket.on('sendDesc', function (msg) {
     });
 });
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 function isCanvas(obj) {
@@ -1015,10 +1251,8 @@ function isCanvas(obj) {
         return false;
     return obj.tagName === 'CANVAS';
 }
-var oldX = -1, oldY = -1;
 var GameWindow = /** @class */ (function () {
     function GameWindow() {
-        var _this = this;
         var maybeCanvas = document.getElementById("webglcanvas");
         if (!isCanvas(maybeCanvas)) {
             alert("Webgl canvas not foud!");
@@ -1043,27 +1277,13 @@ var GameWindow = /** @class */ (function () {
         this.canvas2d = maybeCanvas;
         this.canvas2d.oncontextmenu = function () { return false; };
         this.fillWindow();
-        this.canvas2d.addEventListener('mousemove', function (event) { return _this.onMouseMove(event); });
-    }
-    GameWindow.prototype.onMouseMove = function (event) {
-        if (oldX < 0 || oldY < 0) {
-            oldX = event.pageX;
-            oldY = event.pageY;
-            return;
-        }
-        var ctx = this.canvas2d.getContext("2d");
-        if (!ctx) {
+        var maybeCtx = this.canvas2d.getContext("2d");
+        if (!maybeCtx) {
             alert("Can't create canvas context!");
             throw new Error("Can't create canvas context!");
         }
-        ctx.clearRect(0, 0, this.canvas2d.width, this.canvas2d.height);
-        ctx.beginPath();
-        ctx.moveTo(oldX, oldY);
-        ctx.lineTo(event.pageX, event.pageY);
-        ctx.stroke();
-        oldX = event.pageX;
-        oldY = event.pageY;
-    };
+        this.ctx = maybeCtx;
+    }
     GameWindow.prototype.fillWindow = function () {
         this.canvasgl.width = this.canvas2d.width = window.innerWidth;
         this.canvasgl.height = this.canvas2d.height = window.innerHeight;
@@ -1073,4 +1293,4 @@ var GameWindow = /** @class */ (function () {
 }());
 exports.GameWindow = GameWindow;
 
-},{}]},{},[4]);
+},{}]},{},[5]);
