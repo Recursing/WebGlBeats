@@ -80,13 +80,13 @@ function debug(txt: string) {
 }
 
 sendChannel.onmessage = (event) => {
-    debug("got message!");
+    // debug("got message!");
     let data = new Uint16Array(event.data);
     if (data.length !== 1) {
         debug("Recieved wrong data " + data[0]);
     }
-    debug(event.toString());
-    debug(event.data.toString());
+    // debug(event.toString());
+    // debug(event.data.toString());
     let success = window.navigator.vibrate(data[0] || 100);
     if (!success) {
         debug("cannot vibrate! :(");

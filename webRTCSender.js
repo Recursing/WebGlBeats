@@ -36,7 +36,7 @@ window.addEventListener('deviceorientation', function (event) {
 var touches = 0;
 var multiTouched = false;
 window.addEventListener('touchstart', function (event) {
-    debug('touchstart: ' + touches);
+    // debug('touchstart: ' + touches);
     var touchEvents = event.changedTouches;
     if (touches > 0 || touchEvents.length > 1) {
         if (sendChannel.readyState === 'open') {
@@ -49,7 +49,7 @@ window.addEventListener('touchstart', function (event) {
     touches += touchEvents.length;
 });
 window.addEventListener('touchend', function (event) {
-    debug('touchend: ' + touches);
+    // debug('touchend: ' + touches);
     var touchEvents = event.changedTouches;
     if (!multiTouched && touches == 1 && sendChannel.readyState === 'open') {
         debug('PRESS BUTTON');
@@ -67,13 +67,13 @@ function debug(txt) {
     document.body.appendChild(p);
 }
 sendChannel.onmessage = function (event) {
-    debug("got message!");
+    // debug("got message!");
     var data = new Uint16Array(event.data);
     if (data.length !== 1) {
         debug("Recieved wrong data " + data[0]);
     }
-    debug(event.toString());
-    debug(event.data.toString());
+    // debug(event.toString());
+    // debug(event.data.toString());
     var success = window.navigator.vibrate(data[0] || 100);
     if (!success) {
         debug("cannot vibrate! :(");
