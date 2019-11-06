@@ -1,0 +1,26 @@
+[
+    {
+        "title": "In the Hall of The Mountain King",
+        "fname": "mountain_king",
+        "song": "../audio/mountain_king.mp3",
+        "bpm": 120,
+        "speed": 0.03,
+        "notes": "../levels/mountain_king.json"
+    },
+    {
+        "title": "Crab Rave",
+        "fname": "crab_rave",
+        "song": "../audio/crab_rave.mp3",
+        "bpm": 125,
+        "speed": 0.05,
+        "notes": "../levels/crab_rave.json"
+    },
+    {
+        "title": "Tetris",
+        "fname": "tetris",
+        "song": "../audio/tetris.mp3",
+        "bpm": 149,
+        "speed": 0.05,
+        "notes": "../levels/tetris.json"
+    }
+]

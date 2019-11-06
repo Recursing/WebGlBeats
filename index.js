@@ -1,30 +1,17 @@
+var fs = require('fs');
 var express = require('express');
 var app = express();
-app.use(express.static('.'))
-var http = require('http').createServer(app);
-var io = require('socket.io')(http);
+app.use(express.static('.'));
 
-let getLocalIP = function () {
-    var os = require('os');
-    var ifaces = os.networkInterfaces();
-    let address = null;
-    Object.keys(ifaces).forEach(function (ifname) {
-        ifaces[ifname].forEach(function (iface) {
-            // Skip non-ipv4 and internal (i.e. 127.0.0.1) addresses
-            if (iface.family === 'IPv4' && !iface.internal) {
-                address = iface.address;
-            }
-        });
-    });
-    return address;
-}
 
-app.get('/localIP', function (req, res) {
-    res.send(getLocalIP());
-});
+var privateKey = fs.readFileSync('/etc/letsencrypt/live/buonanno.tech/privkey.pem', 'utf8');
+var certificate = fs.readFileSync('/etc/letsencrypt/live/buonanno.tech/fullchain.pem', 'utf8');
+var credentials = { key: privateKey, cert: certificate };
+var https = require('https').createServer(credentials, app);
+var io = require('socket.io')(https);
 
 io.on('connection', function (socket) {
-    console.log('a user connected');
+    console.log('a user connected: ' + socket.handshake.address);
     socket.on('disconnect', function () {
         console.log('user disconnected');
     });
@@ -37,6 +24,6 @@ io.on('connection', function (socket) {
 });
 
 
-http.listen(3000, function () {
-    console.log('Open http://127.0.0.1:3000 on chrome/chromium, scan the code, and open with Firefox');
+https.listen(3000, function () {
+    console.log('Open https://buonanno.tech:3000 ');
 });

@@ -1,0 +1,22 @@
+body {
+  margin: 0;
+}
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+img {
+  display: block;
+  transform: translateY(20%);
+  margin: 0 auto;
+}
+
+div {
+  margin: auto;
+  padding: 20px;
+  font-family: Arial;
+  text-align: center;
+  width: 600px;
+}
