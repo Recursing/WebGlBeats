@@ -69,6 +69,9 @@ window.addEventListener('deviceorientation', (event) => {
 
 let touches = 0;
 let multiTouched = false;
+const dummyAudio = new Audio("../audio/dearly_beloved.mp3");
+dummyAudio.volume = 0.05;
+dummyAudio.loop = true;
 window.addEventListener('touchstart', (event) => {
     // debug('touchstart: ' + touches);
     let touchEvents = event.changedTouches;
@@ -81,6 +84,8 @@ window.addEventListener('touchstart', (event) => {
         multiTouched = true;
     }
     touches += touchEvents.length;
+    if (dummyAudio.paused)
+        dummyAudio.play();
 });
 window.addEventListener('touchend', (event) => {
     // debug('touchend: ' + touches);

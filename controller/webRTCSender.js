@@ -57,6 +57,9 @@ window.addEventListener('deviceorientation', function (event) {
 });
 var touches = 0;
 var multiTouched = false;
+var dummyAudio = new Audio("../audio/dearly_beloved.mp3");
+dummyAudio.volume = 0.05;
+dummyAudio.loop = true;
 window.addEventListener('touchstart', function (event) {
     // debug('touchstart: ' + touches);
     var touchEvents = event.changedTouches;
@@ -69,6 +72,8 @@ window.addEventListener('touchstart', function (event) {
         multiTouched = true;
     }
     touches += touchEvents.length;
+    if (dummyAudio.paused)
+        dummyAudio.play();
 });
 window.addEventListener('touchend', function (event) {
     // debug('touchend: ' + touches);
