@@ -1,6 +1,16 @@
-## HOW-TO
- - npm install stuff
- - node index.js
- - open 127.0.0.1:3000 with chrome/chromium
- - open local-ip:3000/w.html with firefox-preview (maybe firefox and-or firefox nightly work, I think chrome requires https even in LAN)
- - profit
+# WebGL Beats
+
+A small WebGL rhythm game demo using your phone as a motion controller via WebRTC.
+
+## Play online
+
+https://recursing.github.io/WebGlBeats/
+
+## Local development
+
+```bash
+npm install
+npm run dev
+```
+
+Serve the directory with any static file server (needs HTTPS for phone gyroscope access).

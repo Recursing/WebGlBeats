@@ -40,7 +40,7 @@ if (!urlToken) {
   history.replaceState(null, "", url);
 }
 
-const controllerUrl = `${window.location.origin}/controller/?${token}`;
+const controllerUrl = new URL(`../controller/?${token}`, window.location.href).href;
 imgElement.src = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(controllerUrl)}&size=300x300`;
 messageHandler.token = token;
 console.log(token);

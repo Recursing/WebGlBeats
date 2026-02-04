@@ -1,7 +1,7 @@
 {
   "name": "webglbeats",
   "version": "0.0.1",
-  "description": "WebGL Beat Saber with phone as motion controller via WebRTC",
+  "description": "WebGL rhythm game demo with phone as motion controller via WebRTC",
   "scripts": {
     "build": "node build.mjs",
     "dev": "node build.mjs --watch",
