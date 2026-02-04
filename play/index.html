@@ -13,18 +13,18 @@
 
 
 <body>
+  <div id="start-overlay">
+    <button>Click to Start</button>
+  </div>
   <div id="hello-container">
-    <h1> Hello! </h1>
-    <h1> </h1>
-    <h1>Please disable display automatic sleep, connect the phone to the same LAN and scan the code below</h1>
-    <img id='qrcode' src="loading.png" width="300" height="300" />
+    <h1>WebGL Beats</h1>
+    <h1>Scan the QR code with your phone to use it as a controller</h1>
+    <img id="qrcode" src="loading.png" width="250" height="250" />
   </div>
   <div id="calibrate-container">
-    <h1> Hello! </h1>
-    <h1> </h1>
-    <h1>Point at the computer and tap the phone screen</h1>
+    <h1>Calibrate</h1>
+    <h1>Point your phone at the screen and tap to calibrate</h1>
   </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
   <canvas id="canvas2d"></canvas>
   <canvas id="webglcanvas"></canvas>

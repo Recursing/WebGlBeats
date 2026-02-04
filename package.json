@@ -1,9 +1,15 @@
 {
-  "name": "socketwebrtcconnection",
+  "name": "webglbeats",
   "version": "0.0.1",
-  "description": "connect via socket.io server",
-  "dependencies": {
-    "express": "^4.17.1",
-    "socket.io": "^2.3.0"
+  "description": "WebGL Beat Saber with phone as motion controller via WebRTC",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs --watch",
+    "test": "npx playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.1",
+    "esbuild": "^0.27.2",
+    "typescript": "^5.9.3"
   }
 }

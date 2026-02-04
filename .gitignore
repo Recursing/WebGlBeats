@@ -4,3 +4,12 @@ geometry.js
 shaders.js
 ui.js
 windowManager.js
+menu.js
+webRTCReceiver.js
+# SSL certificates
+key.pem
+cert.pem
+# Source maps
+*.map
+# Test artifacts
+test-results/

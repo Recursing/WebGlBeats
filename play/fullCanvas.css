@@ -1,22 +1,99 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
+  background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #0f0f1a 100%);
+  min-height: 100vh;
+  font-family:
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  color: #fff;
 }
+
 canvas {
   position: absolute;
   top: 0;
   left: 0;
 }
 
-img {
-  display: block;
-  transform: translateY(20%);
-  margin: 0 auto;
+/* Start overlay */
+#start-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 20, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  cursor: pointer;
 }
 
-div {
-  margin: auto;
-  padding: 20px;
-  font-family: Arial;
+#start-overlay button {
+  font-size: 1.5rem;
+  padding: 1.25rem 3rem;
+  cursor: pointer;
+  background: linear-gradient(135deg, #d85167 0%, #b34455 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  box-shadow:
+    0 0 50px rgba(216, 81, 103, 0.2),
+    0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+#start-overlay button:hover {
+  transform: scale(1.05);
+}
+
+/* Container styling */
+#hello-container,
+#calibrate-container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
   text-align: center;
-  width: 600px;
+}
+
+#hello-container h1:first-child,
+#calibrate-container h1:first-child {
+  font-size: 2.5rem;
+  margin: 0 0 1rem 0;
+  background: linear-gradient(135deg, #d85167, #4d9fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+#hello-container h1:last-of-type,
+#calibrate-container h1:last-of-type {
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: #a0a0b0;
+  line-height: 1.6;
+  margin: 0 0 2.5rem 0;
+}
+
+/* QR code styling */
+#qrcode {
+  display: block;
+  margin: 0 auto;
+  padding: 1rem;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow:
+    0 0 40px rgba(77, 159, 255, 0.3),
+    0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+/* Hide empty h1 */
+#hello-container h1:empty,
+#calibrate-container h1:empty {
+  display: none;
 }
