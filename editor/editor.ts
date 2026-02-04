@@ -21,7 +21,7 @@ function download(filename: string, text: string) {
 
 const maybeCanvas = document.getElementById("canvas2d");
 if (!isCanvas(maybeCanvas)) {
-    alert("canvas2d not foud!");
+    alert("canvas2d not found!");
     throw Error("Canvas not found!");
 }
 const canvas2d = maybeCanvas;

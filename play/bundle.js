@@ -1921,7 +1921,7 @@ void main(void) {
     url.searchParams.set("token", token);
     history.replaceState(null, "", url);
   }
-  var controllerUrl = `${window.location.origin}/controller/?${token}`;
+  var controllerUrl = new URL(`../controller/?${token}`, window.location.href).href;
   imgElement.src = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(controllerUrl)}&size=300x300`;
   messageHandler.token = token;
   console.log(token);

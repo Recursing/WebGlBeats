@@ -16,7 +16,7 @@ export class GameWindow {
     constructor() {
         let maybeCanvas = document.getElementById("webglcanvas");
         if (!isCanvas(maybeCanvas)) {
-            alert("Webgl canvas not foud!");
+            alert("Webgl canvas not found!");
             throw Error("Canvas not found!");
         }
         this.canvasgl = maybeCanvas;
@@ -26,14 +26,14 @@ export class GameWindow {
             depth: true
         });
         if (!maybeGl) {
-            alert("webgl not foud!");
+            alert("webgl not found!");
             throw Error("webgl not found!");
         }
         this.gl = maybeGl;
 
         maybeCanvas = document.getElementById("canvas2d");
         if (!isCanvas(maybeCanvas)) {
-            alert("2d canvas not foud!");
+            alert("2d canvas not found!");
             throw Error("Canvas not found!");
         }
         this.canvas2d = maybeCanvas;
@@ -47,7 +47,7 @@ export class GameWindow {
 
         maybeCanvas = document.getElementById("gameCanvas");
         if (!isCanvas(maybeCanvas)) {
-            alert("Game canvas not foud!");
+            alert("Game canvas not found!");
             throw Error("Canvas not found!");
         }
         this.gameCanvas = maybeCanvas;
