@@ -48,27 +48,44 @@
   sendChannel.onclose = (_e) => debug("Closed channel!");
   sendChannel.binaryType = "arraybuffer";
   var offerSent = false;
-  sender.createOffer().then((offer) => sender.setLocalDescription(offer)).catch(debug);
+  var candidateCount = 0;
+  var iceTimeoutId = null;
+  function sendOfferNow(reason) {
+    if (offerSent || !sender.localDescription) return;
+    offerSent = true;
+    if (iceTimeoutId) clearTimeout(iceTimeoutId);
+    debug(`Sending offer: ${reason} (${candidateCount} candidates)`);
+    sendOffer(token, sender.localDescription.sdp).then(() => {
+      debug("Offer sent, polling for answer...");
+      return pollForAnswer(token);
+    }).then((answerSdp) => {
+      debug("Received answer!");
+      if (sender.signalingState !== "have-local-offer") {
+        debug("Received answer without having an offer!");
+        return;
+      }
+      const rDesc = new RTCSessionDescription({
+        type: "answer",
+        sdp: answerSdp
+      });
+      return sender.setRemoteDescription(rDesc);
+    }).catch(debug);
+  }
+  sender.createOffer().then((offer) => sender.setLocalDescription(offer)).then(() => {
+    iceTimeoutId = setTimeout(() => {
+      sendOfferNow("timeout - trying with available candidates");
+    }, 5e3);
+  }).catch(debug);
   sender.onicecandidate = (e) => {
-    debug("ice candidate " + (e.candidate ? "found" : "gathering complete"));
-    if (!offerSent && !e.candidate && sender.localDescription) {
-      offerSent = true;
-      debug("Sending offer via HTTP");
-      sendOffer(token, sender.localDescription.sdp).then(() => {
-        debug("Offer sent, polling for answer...");
-        return pollForAnswer(token);
-      }).then((answerSdp) => {
-        debug("Received answer!");
-        if (sender.signalingState !== "have-local-offer") {
-          debug("Received answer without having an offer!");
-          return;
-        }
-        const rDesc = new RTCSessionDescription({
-          type: "answer",
-          sdp: answerSdp
-        });
-        return sender.setRemoteDescription(rDesc);
-      }).catch(debug);
+    if (e.candidate) {
+      candidateCount++;
+      debug(`ice candidate: ${e.candidate.type} (${candidateCount})`);
+      if (e.candidate.type === "srflx") {
+        sendOfferNow("got public IP");
+      }
+    } else {
+      debug("ice gathering complete");
+      sendOfferNow("gathering complete");
     }
   };
   var zAngle = 0;
@@ -121,7 +138,7 @@
   sendChannel.onmessage = (event) => {
     let data = new Uint16Array(event.data);
     if (data.length !== 1) {
-      debug("Recieved wrong data " + data[0]);
+      debug("Received wrong data " + data[0]);
     }
     let success = window.navigator?.vibrate(data[0] || 100);
     if (!success) {

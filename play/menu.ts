@@ -140,6 +140,7 @@ export class Menu {
                     this.audioPreview.pause();
                 this.audioPreview = null;
                 this.audioPreview = new Audio(this.levels[i].song);
+                this.audioPreview.volume = 0.1;
                 this.audioPreview.play();
                 this.onButtonSelect();
                 btn.selected = true;

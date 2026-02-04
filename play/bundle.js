@@ -10,7 +10,7 @@
     constructor() {
       let maybeCanvas = document.getElementById("webglcanvas");
       if (!isCanvas(maybeCanvas)) {
-        alert("Webgl canvas not foud!");
+        alert("Webgl canvas not found!");
         throw Error("Canvas not found!");
       }
       this.canvasgl = maybeCanvas;
@@ -20,13 +20,13 @@
         depth: true
       });
       if (!maybeGl) {
-        alert("webgl not foud!");
+        alert("webgl not found!");
         throw Error("webgl not found!");
       }
       this.gl = maybeGl;
       maybeCanvas = document.getElementById("canvas2d");
       if (!isCanvas(maybeCanvas)) {
-        alert("2d canvas not foud!");
+        alert("2d canvas not found!");
         throw Error("Canvas not found!");
       }
       this.canvas2d = maybeCanvas;
@@ -39,7 +39,7 @@
       this.ctx = maybeCtx;
       maybeCanvas = document.getElementById("gameCanvas");
       if (!isCanvas(maybeCanvas)) {
-        alert("Game canvas not foud!");
+        alert("Game canvas not found!");
         throw Error("Canvas not found!");
       }
       this.gameCanvas = maybeCanvas;
@@ -1334,6 +1334,7 @@ void main(void) {
   var Level = class {
     constructor(songPath, bpm, points, speed = 0.1, title = "") {
       this.song = new Audio(songPath);
+      this.song.volume = 0.2;
       this.startSong();
       this.bpm = bpm;
       this.notes = points;
@@ -1362,7 +1363,7 @@ void main(void) {
   var wooshes = [new Audio("../audio/woosh.wav?v=334"), new Audio("../audio/woosh.wav"), new Audio("../audio/woosh.wav"), new Audio("../audio/woosh.wav"), new Audio("../audio/woosh.mp3")];
   wooshes.map((w) => {
     w.playbackRate = 3;
-    w.volume = 0.2;
+    w.volume = 0.01;
   });
   function HuetoRGB(hue) {
     let hue2rgb = function hue2rgb2(p2, q2, t) {
@@ -1495,6 +1496,7 @@ void main(void) {
     }
   };
   var Game = class {
+    // 50fps cap (1000ms / 50 = 20ms)
     constructor(gameWindow) {
       this.paused = true;
       this.notesHit = 0;
@@ -1505,13 +1507,14 @@ void main(void) {
       };
       this.onHit = () => {
       };
+      this.lastFrameTime = 0;
+      this.frameInterval = 20;
       const aspectRatio = gameWindow.canvas2d.width / gameWindow.canvas2d.height;
       this.camera = new Camera(aspectRatio);
       this.cursor = new Cursor();
       this.geometry = new BeveledCube(1);
       this.colors = [];
       this.currentLevel = new Level("../audio/dearly_beloved.mp3", 60, []);
-      this.currentLevel.song.volume = 0.2;
       this.gameWindow = gameWindow;
       this.shaderManager = new ShaderManager(gameWindow.gl);
       this.shaderManager.setCamera(this.camera);
@@ -1544,7 +1547,6 @@ void main(void) {
       this.multiplier = 1;
       this.currentLevel.song.pause();
       this.currentLevel = new Level("../audio/dearly_beloved.mp3", 60, []);
-      this.currentLevel.song.volume = 0.2;
     }
     onResize() {
       this.gameWindow.fillWindow();
@@ -1646,12 +1648,17 @@ void main(void) {
         this.currentLevel.notes.shift();
       }
     }
-    tick(_t) {
+    tick(t) {
       this.draw();
       this.update();
-      requestAnimationFrame((dt) => {
-        this.tick(dt);
-      });
+      const elapsed = t - this.lastFrameTime;
+      this.lastFrameTime = t;
+      const delay = Math.max(0, this.frameInterval - elapsed);
+      setTimeout(() => {
+        requestAnimationFrame((dt) => {
+          this.tick(dt);
+        });
+      }, delay);
     }
   };
 
@@ -1863,6 +1870,7 @@ void main(void) {
             this.audioPreview.pause();
           this.audioPreview = null;
           this.audioPreview = new Audio(this.levels[i].song);
+          this.audioPreview.volume = 0.1;
           this.audioPreview.play();
           this.onButtonSelect();
           btn.selected = true;

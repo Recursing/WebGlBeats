@@ -19,6 +19,9 @@ function download(filename: string, text: string) {
     document.body.removeChild(element);
 }
 
+const MAX_WIDTH = 1920;
+const MAX_HEIGHT = 1080;
+
 const maybeCanvas = document.getElementById("canvas2d");
 if (!isCanvas(maybeCanvas)) {
     alert("canvas2d not found!");
@@ -26,8 +29,10 @@ if (!isCanvas(maybeCanvas)) {
 }
 const canvas2d = maybeCanvas;
 canvas2d.oncontextmenu = () => false;
-canvas2d.width = window.innerWidth;
-canvas2d.height = window.innerHeight;
+canvas2d.width = Math.min(window.innerWidth, MAX_WIDTH);
+canvas2d.height = Math.min(window.innerHeight, MAX_HEIGHT);
+canvas2d.style.width = window.innerWidth + 'px';
+canvas2d.style.height = window.innerHeight + 'px';
 const ctx = canvas2d.getContext("2d");
 
 if (!ctx) {
@@ -121,7 +126,7 @@ function draw(_t: number) {
 }
 
 window.addEventListener('keydown', function (e) {
-    if (e.keyCode == 27) {
+    if (e.key === "Escape") {
         if (!song.paused)
             song.pause();
         level = null;
@@ -150,7 +155,7 @@ window.addEventListener('keydown', function (e) {
             return val.toFixed ? Number(val.toFixed(3)) : val;
         }));
     }
-    console.log(e.key, e.keyCode);
+    console.log(e.key);
 });
 
 let lastX: number | null = null;
@@ -229,8 +234,10 @@ window.addEventListener('mousemove', function (e) {
 let notes: [number, number, number, number][] = [];
 
 window.onresize = function () {
-    canvas2d.width = window.innerWidth;
-    canvas2d.height = window.innerHeight;
+    canvas2d.width = Math.min(window.innerWidth, MAX_WIDTH);
+    canvas2d.height = Math.min(window.innerHeight, MAX_HEIGHT);
+    canvas2d.style.width = window.innerWidth + 'px';
+    canvas2d.style.height = window.innerHeight + 'px';
     ctx.font = "30px Arial";
 };
 

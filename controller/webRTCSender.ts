@@ -33,36 +33,57 @@ sendChannel.onclose = (_e) => debug("Closed channel!");
 sendChannel.binaryType = "arraybuffer";
 
 let offerSent = false;
+let candidateCount = 0;
+let iceTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
+function sendOfferNow(reason: string) {
+  if (offerSent || !sender.localDescription) return;
+  offerSent = true;
+  if (iceTimeoutId) clearTimeout(iceTimeoutId);
+
+  debug(`Sending offer: ${reason} (${candidateCount} candidates)`);
+  sendOffer(token, sender.localDescription.sdp)
+    .then(() => {
+      debug("Offer sent, polling for answer...");
+      return pollForAnswer(token);
+    })
+    .then((answerSdp) => {
+      debug("Received answer!");
+      if (sender.signalingState !== "have-local-offer") {
+        debug("Received answer without having an offer!");
+        return;
+      }
+      const rDesc = new RTCSessionDescription({
+        type: "answer",
+        sdp: answerSdp,
+      });
+      return sender.setRemoteDescription(rDesc);
+    })
+    .catch(debug);
+}
 
 sender
   .createOffer()
   .then((offer) => sender.setLocalDescription(offer))
+  .then(() => {
+    // Fallback: send after 5s with whatever we have (maybe just host candidates)
+    iceTimeoutId = setTimeout(() => {
+      sendOfferNow("timeout - trying with available candidates");
+    }, 5_000);
+  })
   .catch(debug);
 
 sender.onicecandidate = (e) => {
-  debug("ice candidate " + (e.candidate ? "found" : "gathering complete"));
-  // Send offer after gathering complete to include all candidates
-  if (!offerSent && !e.candidate && sender.localDescription) {
-    offerSent = true;
-    debug("Sending offer via HTTP");
-    sendOffer(token, sender.localDescription.sdp)
-      .then(() => {
-        debug("Offer sent, polling for answer...");
-        return pollForAnswer(token);
-      })
-      .then((answerSdp) => {
-        debug("Received answer!");
-        if (sender.signalingState !== "have-local-offer") {
-          debug("Received answer without having an offer!");
-          return;
-        }
-        const rDesc = new RTCSessionDescription({
-          type: "answer",
-          sdp: answerSdp,
-        });
-        return sender.setRemoteDescription(rDesc);
-      })
-      .catch(debug);
+  if (e.candidate) {
+    candidateCount++;
+    debug(`ice candidate: ${e.candidate.type} (${candidateCount})`);
+    // Send as soon as we get a server-reflexive candidate (public IP)
+    if (e.candidate.type === "srflx") {
+      sendOfferNow("got public IP");
+    }
+  } else {
+    debug("ice gathering complete");
+    sendOfferNow("gathering complete");
   }
 };
 
@@ -135,7 +156,7 @@ sendChannel.onmessage = (event) => {
   // debug("got message!");
   let data = new Uint16Array(event.data);
   if (data.length !== 1) {
-    debug("Recieved wrong data " + data[0]);
+    debug("Received wrong data " + data[0]);
   }
   // debug(event.toString());
   // debug(event.data.toString());

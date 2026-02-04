@@ -30,6 +30,7 @@ export class Level {
 
     constructor(songPath: string, bpm: number, points: Note[], speed = 0.1, title = "") {
         this.song = new Audio(songPath);
+        this.song.volume = 0.2;
         this.startSong();
         this.bpm = bpm;
         this.notes = points;
@@ -63,7 +64,7 @@ function fromDescription(desc: LevelDescription): Level {
 let wooshes = [new Audio('../audio/woosh.wav?v=334'), new Audio('../audio/woosh.wav'), new Audio('../audio/woosh.wav'), new Audio('../audio/woosh.wav'), new Audio('../audio/woosh.mp3')];
 wooshes.map((w) => {
     w.playbackRate = 3;
-    w.volume = 0.2;
+    w.volume = 0.01;
 });
 
 function HuetoRGB(hue: number): [number, number, number] {
@@ -240,6 +241,8 @@ export class Game {
     multiplier = 1;
     onLevelEnd = () => { };
     onHit = () => { };
+    private lastFrameTime = 0;
+    private readonly frameInterval = 20; // 50fps cap (1000ms / 50 = 20ms)
 
     constructor(gameWindow: GameWindow) {
         const aspectRatio = gameWindow.canvas2d.width / gameWindow.canvas2d.height;
@@ -249,8 +252,7 @@ export class Game {
         this.colors = [];
         // TODO load default or get level in constructor
         this.currentLevel = new Level('../audio/dearly_beloved.mp3', 60, []);
-        this.currentLevel.song.volume = 0.2;
-
+        
         /*for (let x = -12; x <= 10; x += 3) {
             for (let y = -12; y <= 10; y += 3) {
                 let t = identityMatrix.slice() as mat4;
@@ -297,8 +299,7 @@ export class Game {
         this.multiplier = 1;
         this.currentLevel.song.pause();
         this.currentLevel = new Level('../audio/dearly_beloved.mp3', 60, []);
-        this.currentLevel.song.volume = 0.2;
-    }
+            }
 
     public onResize() {
         this.gameWindow.fillWindow();
@@ -412,10 +413,16 @@ export class Game {
         }
     }
 
-    public tick(_t: number) {
-        // Stress testing browsers for fun
+    public tick(t: number) {
         this.draw();
         this.update();
-        requestAnimationFrame((dt: number) => { this.tick(dt); });
+
+        const elapsed = t - this.lastFrameTime;
+        this.lastFrameTime = t;
+        const delay = Math.max(0, this.frameInterval - elapsed);
+
+        setTimeout(() => {
+            requestAnimationFrame((dt: number) => { this.tick(dt); });
+        }, delay);
     }
 }
