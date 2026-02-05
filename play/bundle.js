@@ -1665,10 +1665,11 @@ void main(void) {
   // config.ts
   var SIGNALING_SERVER = "https://huge-weasel-83.recursing.deno.net";
   var POLLING_INTERVAL_MS = 1e3;
+  var MAX_POLLING_ATTEMPTS = 120;
 
   // play/signaling.ts
   async function pollForOffer(token2) {
-    while (true) {
+    for (let attempt = 0; attempt < MAX_POLLING_ATTEMPTS; attempt++) {
       const res = await fetch(`${SIGNALING_SERVER}/offer/${token2}`);
       const data = await res.json();
       if (data.offer) {
@@ -1676,6 +1677,7 @@ void main(void) {
       }
       await new Promise((r) => setTimeout(r, POLLING_INTERVAL_MS));
     }
+    throw new Error("Polling timed out: no offer received after 120 attempts");
   }
   async function sendAnswer(token2, answer) {
     await fetch(`${SIGNALING_SERVER}/answer/${token2}`, {

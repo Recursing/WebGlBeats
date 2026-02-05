@@ -3,6 +3,7 @@
   // config.ts
   var SIGNALING_SERVER = "https://huge-weasel-83.recursing.deno.net";
   var POLLING_INTERVAL_MS = 1e3;
+  var MAX_POLLING_ATTEMPTS = 120;
   var SEND_INTERVAL_MS = 20;
 
   // controller/signaling.ts
@@ -13,7 +14,7 @@
     });
   }
   async function pollForAnswer(token2) {
-    while (true) {
+    for (let attempt = 0; attempt < MAX_POLLING_ATTEMPTS; attempt++) {
       const res = await fetch(`${SIGNALING_SERVER}/answer/${token2}`);
       const data = await res.json();
       if (data.answer) {
@@ -21,6 +22,7 @@
       }
       await new Promise((r) => setTimeout(r, POLLING_INTERVAL_MS));
     }
+    throw new Error("Polling timed out: no answer received after 120 attempts");
   }
 
   // controller/webRTCSender.ts
